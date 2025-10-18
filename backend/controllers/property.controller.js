@@ -1,0 +1,222 @@
+import { Property } from "../models/Property.model.js";
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import {ApiError} from "../utils/ApiError.js";
+import {ApiResponse} from "../utils/ApiResponse.js";
+import { uploadToCloudinary } from "../utils/Cloudinary.js";
+
+// Create property with image upload
+const createProperty = asyncHandler(async (req, res) => {
+  const {
+    name,
+    description,
+    bedrooms,
+    bathrooms,
+    floorArea,
+    totalFloors,
+    amenities,
+    address,
+    city,
+    state,
+    country,
+    contactName,
+    contactEmail,
+    contactPhoneNumber,
+    legalDocumentation,
+    price,
+  } = req.body;
+
+  // Validate required fields
+  if (
+    !name ||
+    !description ||
+    !bedrooms ||
+    !bathrooms ||
+    !floorArea ||
+    !totalFloors ||
+    !address ||
+    !city ||
+    !state ||
+    !country ||
+    !contactName ||
+    !contactEmail ||
+    !contactPhoneNumber ||
+    !price
+  ) {
+    throw new ApiError(400, "All required fields must be provided");
+  }
+
+  let imageUrls = [];
+
+  // Upload images to Cloudinary if files are provided
+  if (req.files && req.files.length > 0) {
+    for (const file of req.files) {
+      const uploadResult = await uploadToCloudinary(file.path);
+      imageUrls.push(uploadResult.secure_url);
+    }
+  }
+
+  // Create a new property document
+  const property = await Property.create({
+    name,
+    description,
+    images: imageUrls,
+    bedrooms: Number(bedrooms),
+    bathrooms: Number(bathrooms),
+    floorArea: Number(floorArea),
+    totalFloors: Number(totalFloors),
+    amenities: Array.isArray(amenities)
+      ? amenities
+      : JSON.parse(amenities || "[]"),
+    address,
+    city,
+    state,
+    country,
+    contactName,
+    contactEmail,
+    contactPhoneNumber,
+    legalDocumentation,
+    price: Number(price),
+    createdBy: req.user._id,
+  });
+
+   console.log("Property created with ID:", property._id);
+
+  return res
+    .status(201)
+    .json(new ApiResponse(201, property, "Property created successfully"));
+});
+
+// Get all properties
+const getAllProperties = asyncHandler(async (req, res) => {
+  const properties = await Property.find().sort({ createdAt: -1 });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, properties, "Properties fetched successfully"));
+});
+
+// Get single property
+const getPropertyById = asyncHandler(async (req, res) => {
+  const property = await Property.findById(req.params.id);
+
+  if (!property) {
+    throw new ApiError(404, "Property not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, property, "Property fetched successfully"));
+});
+
+// Update property
+const updateProperty = asyncHandler(async (req, res) => {
+  const property = await Property.findById(req.params.id);
+
+  if (!property) {
+    throw new ApiError(404, "Property not found");
+  }
+
+  const {
+    name,
+    description,
+    bedrooms,
+    bathrooms,
+    floorArea,
+    totalFloors,
+    amenities,
+    address,
+    city,
+    state,
+    country,
+    contactName,
+    contactEmail,
+    contactPhoneNumber,
+    legalDocumentation,
+    price,
+    existingImages,
+    imagesToDelete,
+  } = req.body;
+
+  console.log("Existing images to keep:", existingImages);
+  console.log("Images to delete:", imagesToDelete);
+
+  // Start with existing images that should be kept
+  let imageUrls = [];
+  if (existingImages) {
+    try {
+      imageUrls = JSON.parse(existingImages);
+    } catch (e) {
+      imageUrls = [];
+    }
+  }
+
+  // Upload new images to Cloudinary if files are provided
+  if (req.files && req.files.length > 0) {
+    for (const file of req.files) {
+      const uploadResult = await uploadToCloudinary(file.path);
+      imageUrls.push(uploadResult.secure_url);
+    }
+  }
+
+  const updatedPropertyData = {
+    name: name || property.name,
+    description: description || property.description,
+    images: imageUrls, // Use the updated images array
+    bedrooms: bedrooms ? Number(bedrooms) : property.bedrooms,
+    bathrooms: bathrooms ? Number(bathrooms) : property.bathrooms,
+    floorArea: floorArea ? Number(floorArea) : property.floorArea,
+    totalFloors: totalFloors ? Number(totalFloors) : property.totalFloors,
+    amenities: amenities
+      ? Array.isArray(amenities)
+        ? amenities
+        : JSON.parse(amenities)
+      : property.amenities,
+    address: address || property.address,
+    city: city || property.city,
+    state: state || property.state,
+    country: country || property.country,
+    contactName: contactName || property.contactName,
+    contactEmail: contactEmail || property.contactEmail,
+    contactPhoneNumber: contactPhoneNumber || property.contactPhoneNumber,
+    legalDocumentation: legalDocumentation || property.legalDocumentation,
+    price: price ? Number(price) : property.price,
+  };
+
+  const updatedProperty = await Property.findByIdAndUpdate(
+    req.params.id,
+    updatedPropertyData,
+    { new: true, runValidators: true }
+  );
+
+  console.log(
+    "Property updated successfully with images:",
+    updatedProperty.images
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedProperty, "Property updated successfully")
+    );
+});
+
+// Delete property
+const deleteProperty = asyncHandler(async (req, res) => {
+  const property = await Property.findByIdAndDelete(req.params.id);
+
+  if (!property) {
+    throw new ApiError(404, "Property not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Property deleted successfully"));
+});
+
+export {
+  createProperty,
+  getAllProperties,
+  getPropertyById,
+  updateProperty,
+  deleteProperty,
+};

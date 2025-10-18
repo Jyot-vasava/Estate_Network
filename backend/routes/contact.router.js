@@ -1,0 +1,24 @@
+import { Router } from "express";
+import {
+  createContact,
+  getAllContacts,
+  getContactById,
+  deleteContact,
+} from "../controllers/contact.controller.js";
+import {verifyUser} from "../middleware/auth.middleware.js";
+
+const router = Router();
+
+// Submit contact form (public route)
+router.post("/", createContact);
+
+// Get all contacts - admin only (protected route)
+router.get("/", verifyUser, getAllContacts);
+
+// Get single contact by ID - admin only (protected route)
+router.get("/:id", verifyUser, getContactById);
+
+// Delete contact - admin only (protected route)
+router.delete("/:id", verifyUser, deleteContact);
+
+export default router;
