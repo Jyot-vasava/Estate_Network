@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
 
-const { Schema } = mongoose;
-
-const propertySchema = new Schema(
+const propertySchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -72,13 +70,14 @@ const propertySchema = new Schema(
       type: Number,
       required: true,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
-    },
-    owner: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
     },
   },
   { timestamps: true }
@@ -86,5 +85,4 @@ const propertySchema = new Schema(
 
 const Property = mongoose.model("Property", propertySchema);
 
-export  {Property};
-
+export { Property }

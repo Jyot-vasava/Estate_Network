@@ -67,7 +67,7 @@ const Navbar = () => {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        Property Booking
+       Estate Network
       </Typography>
       <List>
         {navItems.map((item) => (
@@ -137,7 +137,7 @@ const Navbar = () => {
                 fontWeight: "bold",
               }}
             >
-              Property Booking
+              Estate Netowrk
             </Typography>
 
             {/* Desktop Navigation */}

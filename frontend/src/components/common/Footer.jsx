@@ -32,7 +32,7 @@ const Footer = () => {
           {/* Company Info */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Typography variant="h6" gutterBottom fontWeight="bold">
-              Property Booking
+              Estate Network
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Find your dream property with us. We offer the best properties at
@@ -82,7 +82,7 @@ const Footer = () => {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
                 <Typography variant="body2" color="text.secondary">
-                  Home
+                  home
                 </Typography>
               </Link>
               <Link
@@ -132,10 +132,10 @@ const Footer = () => {
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Typography variant="body2" color="text.secondary">
-                Email: info@propertybooking.com
+                Email: vasavajyotkumar@gmail.com
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Phone: +91 1234567890
+                Phone: +91 9998212821
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Address: Surat, Gujarat, India
@@ -156,7 +156,7 @@ const Footer = () => {
           }}
         >
           <Typography variant="body2" color="text.secondary">
-            © {currentYear} Property Booking System. All rights reserved.
+            © {currentYear} Estate Netowrk System. All rights reserved.
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Made with ❤️ in India

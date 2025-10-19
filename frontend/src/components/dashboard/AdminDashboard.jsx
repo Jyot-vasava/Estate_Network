@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -12,17 +13,20 @@ import {
   TableHead,
   TableRow,
   Chip,
+  Button,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StatCard from "./StatCard";
 import { fetchProperties } from "../../features/properties/propertySlice.js";
 import { formatCurrency, formatDate } from "../../utils/helper.js";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { properties } = useSelector((state) => state.properties);
   const { bookings } = useSelector((state) => state.bookings);
 
@@ -37,16 +41,35 @@ const AdminDashboard = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom fontWeight="bold">
-        Admin Dashboard
-      </Typography>
-      <Typography variant="body1" color="text.secondary" mb={4}>
-        Overview of your property management system
-      </Typography>
+      {/* Header with Back Button */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" gutterBottom fontWeight="bold">
+            Admin Dashboard
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Overview of your property management system
+          </Typography>
+        </Box>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate("/")}
+        >
+          Go Home
+        </Button>
+      </Box>
 
       {/* Stats */}
       <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Total Properties"
             value={properties?.length || 0}
@@ -54,7 +77,7 @@ const AdminDashboard = () => {
             color="primary"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Total Bookings"
             value={bookings?.length || 0}
@@ -62,7 +85,7 @@ const AdminDashboard = () => {
             color="success"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Total Revenue"
             value={formatCurrency(totalRevenue || 0)}
@@ -70,7 +93,7 @@ const AdminDashboard = () => {
             color="warning"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Messages"
             value="15"

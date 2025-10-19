@@ -76,44 +76,32 @@ const createProperty = asyncHandler(async (req, res) => {
     contactPhoneNumber,
     legalDocumentation,
     price: Number(price),
-    createdBy: req.user._id,
+    createdBy: req.user._id, // Add creator ID
   });
 
-   console.log("Property created with ID:", property._id);
+  console.log(
+    "Property created with ID:",
+    property._id,
+    "by user:",
+    req.user._id
+  );
 
   return res
     .status(201)
     .json(new ApiResponse(201, property, "Property created successfully"));
 });
 
-// Get all properties
-const getAllProperties = asyncHandler(async (req, res) => {
-  const properties = await Property.find().sort({ createdAt: -1 });
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, properties, "Properties fetched successfully"));
-});
-
-// Get single property
-const getPropertyById = asyncHandler(async (req, res) => {
+// Update property - Add ownership check
+const updateProperty = asyncHandler(async (req, res) => {
   const property = await Property.findById(req.params.id);
 
   if (!property) {
     throw new ApiError(404, "Property not found");
   }
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, property, "Property fetched successfully"));
-});
-
-// Update property
-const updateProperty = asyncHandler(async (req, res) => {
-  const property = await Property.findById(req.params.id);
-
-  if (!property) {
-    throw new ApiError(404, "Property not found");
+  // Check if user is the owner
+  if (property.createdBy.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "You are not authorized to update this property");
   }
 
   const {
@@ -140,7 +128,6 @@ const updateProperty = asyncHandler(async (req, res) => {
   console.log("Existing images to keep:", existingImages);
   console.log("Images to delete:", imagesToDelete);
 
-  // Start with existing images that should be kept
   let imageUrls = [];
   if (existingImages) {
     try {
@@ -150,7 +137,6 @@ const updateProperty = asyncHandler(async (req, res) => {
     }
   }
 
-  // Upload new images to Cloudinary if files are provided
   if (req.files && req.files.length > 0) {
     for (const file of req.files) {
       const uploadResult = await uploadToCloudinary(file.path);
@@ -161,7 +147,7 @@ const updateProperty = asyncHandler(async (req, res) => {
   const updatedPropertyData = {
     name: name || property.name,
     description: description || property.description,
-    images: imageUrls, // Use the updated images array
+    images: imageUrls,
     bedrooms: bedrooms ? Number(bedrooms) : property.bedrooms,
     bathrooms: bathrooms ? Number(bathrooms) : property.bathrooms,
     floorArea: floorArea ? Number(floorArea) : property.floorArea,
@@ -200,9 +186,38 @@ const updateProperty = asyncHandler(async (req, res) => {
     );
 });
 
-// Delete property
+// Delete property - Add ownership check
 const deleteProperty = asyncHandler(async (req, res) => {
-  const property = await Property.findByIdAndDelete(req.params.id);
+  const property = await Property.findById(req.params.id);
+
+  if (!property) {
+    throw new ApiError(404, "Property not found");
+  }
+
+  // Check if user is the owner
+  if (property.createdBy.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "You are not authorized to delete this property");
+  }
+
+  await Property.findByIdAndDelete(req.params.id);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Property deleted successfully"));
+});
+
+// Get all properties - unchanged
+const getAllProperties = asyncHandler(async (req, res) => {
+  const properties = await Property.find().sort({ createdAt: -1 });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, properties, "Properties fetched successfully"));
+});
+
+// Get single property - unchanged
+const getPropertyById = asyncHandler(async (req, res) => {
+  const property = await Property.findById(req.params.id);
 
   if (!property) {
     throw new ApiError(404, "Property not found");
@@ -210,7 +225,7 @@ const deleteProperty = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, null, "Property deleted successfully"));
+    .json(new ApiResponse(200, property, "Property fetched successfully"));
 });
 
 export {

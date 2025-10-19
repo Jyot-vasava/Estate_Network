@@ -1,7 +1,7 @@
 import { Contact } from "../models/Contact.model.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
-import {ApiError} from "../utils/ApiError.js";
-import {ApiResponse} from "../utils/ApiResponse.js";
+import ApiError from "../utils/ApiError.js";
+import ApiResponse from "../utils/ApiResponse.js";
 
 // Handle contact form submission
 const createContact = asyncHandler(async (req, res) => {
@@ -13,6 +13,17 @@ const createContact = asyncHandler(async (req, res) => {
 
   const newContact = new Contact({ name, email, subject, message });
   await newContact.save();
+
+  // Log to console for visibility
+  console.log("\n" + "=".repeat(60));
+  console.log("📨 NEW CONTACT MESSAGE RECEIVED");
+  console.log("=".repeat(60));
+  console.log("👤 Name:", name);
+  console.log("📧 Email:", email);
+  console.log("📋 Subject:", subject);
+  console.log("💬 Message:", message);
+  console.log("🕐 Time:", new Date().toLocaleString());
+  console.log("=".repeat(60) + "\n");
 
   return res
     .status(201)

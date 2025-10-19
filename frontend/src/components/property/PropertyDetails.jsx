@@ -1,5 +1,6 @@
-import  { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { CircularProgress } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
@@ -34,7 +35,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Loader from "../../components/common/Loader";
+import Loader from "../../components/common/Loader.jsx";
 import {
   fetchPropertyById,
   deleteProperty,
@@ -52,6 +53,7 @@ const PropertyDetails = () => {
 
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -64,50 +66,57 @@ const PropertyDetails = () => {
     }
   }, [dispatch, id]);
 
+  // Check if current user is the owner
+  const isOwner =
+    isAuthenticated &&
+    currentProperty?.createdBy &&
+    user?._id &&
+    currentProperty.createdBy.toString() === user._id.toString();
+
   // Log for debugging
   useEffect(() => {
     if (currentProperty && user) {
-      console.log("Current Property:", currentProperty);
-      console.log("Current User:", user);
-      console.log("Property has userId?", !!currentProperty.userId);
-      console.log("User ID:", user._id);
+      console.log("Ownership Check:", {
+        propertyCreatedBy: currentProperty.createdBy,
+        currentUserId: user._id,
+        isOwner: isOwner,
+      });
     }
-  }, [currentProperty, user]);
+  }, [currentProperty, user, isOwner]);
 
-const handleContactOwner = async () => {
-  try {
-    const response = await contactApi.contactOwner({
-      ...contactForm,
-      ownerEmail: currentProperty.contactEmail,
-    });
+  const handleContactOwner = async () => {
+    setContactLoading(true);
+    try {
+      const response = await contactApi.contactOwner({
+        ...contactForm,
+        ownerEmail: currentProperty.contactEmail,
+      });
 
-    console.log("Email response:", response);
+      console.log("Email response:", response);
+      toast.success(
+        "Message sent successfully! Check backend console for email preview."
+      );
 
-    // Show success message
-    toast.success(
-      "Message sent successfully! Check backend console for email preview."
-    );
-
-    // If preview URL exists, show it
-    if (response?.data?.previewUrl) {
-      console.log("📧 Email Preview URL:", response.data.previewUrl);
-      console.log("Click the URL above to see the email!");
-
-      // Optionally open in new tab
-      if (
-        window.confirm("Email sent! Would you like to preview it in a new tab?")
-      ) {
-        window.open(response.data.previewUrl, "_blank");
+      if (response?.data?.previewUrl) {
+        console.log("📧 Email Preview URL:", response.data.previewUrl);
+        if (
+          window.confirm(
+            "Email sent! Would you like to preview it in a new tab?"
+          )
+        ) {
+          window.open(response.data.previewUrl, "_blank");
+        }
       }
-    }
 
-    setContactDialogOpen(false);
-    setContactForm({ name: "", email: "", message: "" });
-  } catch (error) {
-    console.error("Contact owner error:", error);
-    toast.error("Failed to send message");
-  }
-};
+      setContactDialogOpen(false);
+      setContactForm({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Contact owner error:", error);
+      toast.error("Failed to send message");
+    } finally {
+      setContactLoading(false); 
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -115,7 +124,7 @@ const handleContactOwner = async () => {
       toast.success("Property deleted successfully!");
       navigate("/properties");
     } catch (error) {
-      toast.error("Failed to delete property");
+      toast.error(error || "Failed to delete property");
     }
   };
 
@@ -132,10 +141,6 @@ const handleContactOwner = async () => {
       </Container>
     );
   }
-
-  // Check if current user is the owner - property doesn't have userId, so show buttons to all authenticated users
-  // In a real app, you'd check against actual ownership
-  const canEdit = isAuthenticated; // Allow any authenticated user to edit for now
 
   return (
     <Box className="page-container">
@@ -334,18 +339,23 @@ const handleContactOwner = async () => {
 
               {isAuthenticated && (
                 <>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={() => setContactDialogOpen(true)}
-                    sx={{ mb: 2 }}
-                  >
-                    Contact Owner
-                  </Button>
+                  {/* Show Contact Owner button only if NOT the owner */}
+                  {!isOwner && (
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={() => setContactDialogOpen(true)}
+                      sx={{ mb: 2 }}
+                    >
+                      Contact Owner
+                    </Button>
+                  )}
 
-                  {/* Edit and Delete Buttons */}
-                  {canEdit && (
-                    <Box sx={{ display: "flex", gap: 1 }}>
+                  {/* Show Edit/Delete buttons only if IS the owner */}
+                  {isOwner && (
+                    <Box
+                      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                    >
                       <Button
                         variant="contained"
                         color="primary"
@@ -353,7 +363,7 @@ const handleContactOwner = async () => {
                         startIcon={<EditIcon />}
                         onClick={() => navigate(`/properties/edit/${id}`)}
                       >
-                        Edit
+                        Edit Property
                       </Button>
                       <Button
                         variant="outlined"
@@ -362,11 +372,21 @@ const handleContactOwner = async () => {
                         startIcon={<DeleteIcon />}
                         onClick={() => setDeleteDialogOpen(true)}
                       >
-                        Delete
+                        Delete Property
                       </Button>
                     </Box>
                   )}
                 </>
+              )}
+
+              {!isAuthenticated && (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  textAlign="center"
+                >
+                  Please login to contact the owner
+                </Typography>
               )}
             </Paper>
 
@@ -388,7 +408,7 @@ const handleContactOwner = async () => {
       {/* Contact Owner Dialog */}
       <Dialog
         open={contactDialogOpen}
-        onClose={() => setContactDialogOpen(false)}
+        onClose={() => !contactLoading && setContactDialogOpen(false)} // Disable close while loading
         maxWidth="sm"
         fullWidth
       >
@@ -402,6 +422,7 @@ const handleContactOwner = async () => {
               onChange={(e) =>
                 setContactForm({ ...contactForm, name: e.target.value })
               }
+              disabled={contactLoading}
             />
             <TextField
               fullWidth
@@ -411,6 +432,7 @@ const handleContactOwner = async () => {
               onChange={(e) =>
                 setContactForm({ ...contactForm, email: e.target.value })
               }
+              disabled={contactLoading}
             />
             <TextField
               fullWidth
@@ -421,19 +443,29 @@ const handleContactOwner = async () => {
               onChange={(e) =>
                 setContactForm({ ...contactForm, message: e.target.value })
               }
+              disabled={contactLoading}
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setContactDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={() => setContactDialogOpen(false)}
+            disabled={contactLoading}
+          >
+            Cancel
+          </Button>
           <Button
             variant="contained"
             onClick={handleContactOwner}
             disabled={
-              !contactForm.name || !contactForm.email || !contactForm.message
+              !contactForm.name ||
+              !contactForm.email ||
+              !contactForm.message ||
+              contactLoading
             }
+            startIcon={contactLoading ? <CircularProgress size={20} /> : null}
           >
-            Send Message
+            {contactLoading ? "Sending..." : "Send Message"}
           </Button>
         </DialogActions>
       </Dialog>

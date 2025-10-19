@@ -54,8 +54,7 @@ const Contact = () => {
           color="text.secondary"
           mb={6}
         >
-          Have a question? We'd love to hear from you. Send us a message and
-          we'll respond as soon as possible.
+          Have a question? We'd love to hear from you. Send us a message or feedback.
         </Typography>
 
         <Grid container spacing={4}>
@@ -136,7 +135,7 @@ const Contact = () => {
                       Email
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      info@propertybooking.com
+                      vasavajyotkumar@gmail.com
                     </Typography>
                   </Box>
                 </Box>
@@ -148,7 +147,7 @@ const Contact = () => {
                       Phone
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      +91 1234567890
+                      +91 9998212821
                     </Typography>
                   </Box>
                 </Box>

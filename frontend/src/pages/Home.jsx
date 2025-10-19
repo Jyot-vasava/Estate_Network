@@ -22,6 +22,7 @@ const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { properties, loading } = useSelector((state) => state.properties);
+  const { isAuthenticated } = useSelector((state) => state.auth); // Add this
 
   useEffect(() => {
     dispatch(fetchProperties());
@@ -191,37 +192,39 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* CTA Section */}
-      <Box
-        sx={{
-          background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-          color: "white",
-          py: 8,
-          textAlign: "center",
-        }}
-      >
-        <Container maxWidth="md">
-          <Typography variant="h3" gutterBottom fontWeight="bold">
-            Ready to Get Started?
-          </Typography>
-          <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-            Join thousands of happy customers who found their dream property
-            with us
-          </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              bgcolor: "white",
-              color: "primary.main",
-              "&:hover": { bgcolor: "grey.100" },
-            }}
-            onClick={() => navigate("/signup")}
-          >
-            Sign Up Now
-          </Button>
-        </Container>
-      </Box>
+      {/* CTA Section - Only show if NOT logged in */}
+      {!isAuthenticated && (
+        <Box
+          sx={{
+            background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+            color: "white",
+            py: 8,
+            textAlign: "center",
+          }}
+        >
+          <Container maxWidth="md">
+            <Typography variant="h3" gutterBottom fontWeight="bold">
+              Ready to Get Started?
+            </Typography>
+            <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
+              Join thousands of happy customers who found their dream property
+              with us
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              sx={{
+                bgcolor: "white",
+                color: "primary.main",
+                "&:hover": { bgcolor: "grey.100" },
+              }}
+              onClick={() => navigate("/signup")}
+            >
+              Sign Up Now
+            </Button>
+          </Container>
+        </Box>
+      )}
     </Box>
   );
 };
