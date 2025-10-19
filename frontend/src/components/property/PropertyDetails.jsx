@@ -212,6 +212,71 @@ const PropertyDetails = () => {
                 />
               </Box>
 
+              {/* Add property type and discount display */}
+              <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                <Chip
+                  label={
+                    currentProperty.propertyType === "rent"
+                      ? "For Rent"
+                      : "For Sale"
+                  }
+                  color={
+                    currentProperty.propertyType === "rent"
+                      ? "secondary"
+                      : "success"
+                  }
+                />
+                {currentProperty.discountedPrice &&
+                  currentProperty.discountedPrice < currentProperty.price && (
+                    <Chip
+                      icon={<LocalOfferIcon />}
+                      label={`${
+                        currentProperty.discountPercentage ||
+                        Math.round(
+                          ((currentProperty.price -
+                            currentProperty.discountedPrice) /
+                            currentProperty.price) *
+                            100
+                        )
+                      }% OFF`}
+                      color="error"
+                    />
+                  )}
+              </Box>
+
+              {/* Update price display */}
+              {currentProperty.discountedPrice &&
+              currentProperty.discountedPrice < currentProperty.price ? (
+                <Box>
+                  <Chip
+                    label={formatCurrency(currentProperty.discountedPrice)}
+                    color="primary"
+                    sx={{
+                      fontSize: "1.2rem",
+                      fontWeight: "bold",
+                      px: 2,
+                      py: 3,
+                    }}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      textDecoration: "line-through",
+                      color: "text.secondary",
+                      mt: 1,
+                    }}
+                  >
+                    {formatCurrency(currentProperty.price)}
+                  </Typography>
+                </Box>
+              ) : (
+                <Chip
+                  label={formatCurrency(currentProperty.price)}
+                  color="primary"
+                  sx={{ fontSize: "1.2rem", fontWeight: "bold", px: 2, py: 3 }}
+                />
+              )}
+
               <Divider sx={{ my: 3 }} />
 
               {/* Property Stats */}

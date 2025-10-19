@@ -28,7 +28,12 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: 8,
-      maxlength: 100, // Changed from max to maxlength, increased for hashed passwords
+      maxlength: 100,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
     },
     refreshToken: {
       type: String,
@@ -62,6 +67,7 @@ userSchema.methods.generateAccessToken = function () {
       _id: this._id,
       username: this.username,
       email: this.email,
+      role: this.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
@@ -78,4 +84,6 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
-export const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export {User}

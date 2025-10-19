@@ -15,6 +15,12 @@ const propertySchema = new mongoose.Schema(
         type: String,
       },
     ],
+    propertyType: {
+      type: String,
+      enum: ["sale", "rent"],
+      required: true,
+      default: "sale",
+    },
     bedrooms: {
       type: Number,
       required: true,
@@ -70,6 +76,14 @@ const propertySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    discountedPrice: {
+      type: Number,
+      default: null,
+    },
+    discountPercentage: {
+      type: Number,
+      default: 0,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -83,6 +97,16 @@ const propertySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Property = mongoose.model("Property", propertySchema);
+// Calculate discount percentage before saving
+propertySchema.pre("save", function (next) {
+  if (this.discountedPrice && this.price) {
+    this.discountPercentage = Math.round(
+      ((this.price - this.discountedPrice) / this.price) * 100
+    );
+  }
+  next();
+});
 
-export { Property }
+ const Property = mongoose.model("Property", propertySchema);
+
+ export {Property}

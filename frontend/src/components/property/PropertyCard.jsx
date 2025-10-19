@@ -8,6 +8,7 @@ import {
   Box,
   Chip,
   IconButton,
+  Badge,
 } from "@mui/material";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
@@ -15,6 +16,7 @@ import SquareFootIcon from "@mui/icons-material/SquareFoot";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { formatCurrency } from "../../utils/helper.js";
 
 const PropertyCard = ({ property, onFavorite }) => {
@@ -33,6 +35,9 @@ const PropertyCard = ({ property, onFavorite }) => {
     }
   };
 
+  const hasDiscount =
+    property.discountedPrice && property.discountedPrice < property.price;
+
   return (
     <Card
       sx={{
@@ -41,6 +46,7 @@ const PropertyCard = ({ property, onFavorite }) => {
         flexDirection: "column",
         cursor: "pointer",
         transition: "all 0.3s ease",
+        position: "relative",
         "&:hover": {
           transform: "translateY(-8px)",
           boxShadow: 6,
@@ -56,6 +62,37 @@ const PropertyCard = ({ property, onFavorite }) => {
           alt={property.name}
           sx={{ objectFit: "cover" }}
         />
+
+        {/* Property Type Badge */}
+        <Chip
+          label={property.propertyType === "rent" ? "For Rent" : "For Sale"}
+          color={property.propertyType === "rent" ? "secondary" : "success"}
+          size="small"
+          sx={{
+            position: "absolute",
+            top: 8,
+            left: 8,
+            fontWeight: "bold",
+          }}
+        />
+
+        {/* Discount Badge */}
+        {hasDiscount && (
+          <Chip
+            icon={<LocalOfferIcon />}
+            label={`${property.discountPercentage}% OFF`}
+            color="error"
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 48,
+              fontWeight: "bold",
+            }}
+          />
+        )}
+
+        {/* Favorite Button */}
         <IconButton
           sx={{
             position: "absolute",
@@ -68,16 +105,47 @@ const PropertyCard = ({ property, onFavorite }) => {
         >
           {isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
         </IconButton>
-        <Chip
-          label={formatCurrency(property.price)}
-          color="primary"
+
+        {/* Price */}
+        <Box
           sx={{
             position: "absolute",
             bottom: 8,
             left: 8,
-            fontWeight: "bold",
+            display: "flex",
+            flexDirection: "column",
+            gap: 0.5,
           }}
-        />
+        >
+          {hasDiscount ? (
+            <>
+              <Chip
+                label={formatCurrency(property.discountedPrice)}
+                color="primary"
+                sx={{ fontWeight: "bold" }}
+              />
+              <Typography
+                variant="caption"
+                sx={{
+                  textDecoration: "line-through",
+                  bgcolor: "rgba(0,0,0,0.6)",
+                  color: "white",
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: 1,
+                }}
+              >
+                {formatCurrency(property.price)}
+              </Typography>
+            </>
+          ) : (
+            <Chip
+              label={formatCurrency(property.price)}
+              color="primary"
+              sx={{ fontWeight: "bold" }}
+            />
+          )}
+        </Box>
       </Box>
 
       <CardContent sx={{ flexGrow: 1 }}>

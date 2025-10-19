@@ -24,6 +24,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import AddHomeIcon from "@mui/icons-material/AddHome";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import LogoutIcon from "@mui/icons-material/Logout";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { logout } from "../../features/auth/authSlice.js";
 import { getInitials } from "../../utils/helper.js";
 
@@ -37,6 +38,8 @@ const DashboardLayout = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
+  const isAdmin = user?.role === "admin";
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -46,7 +49,8 @@ const DashboardLayout = () => {
     navigate("/login");
   };
 
-  const menuItems = [
+  // User menu items
+  const userMenuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
     { text: "Properties", icon: <HomeIcon />, path: "/properties" },
     {
@@ -54,20 +58,43 @@ const DashboardLayout = () => {
       icon: <AddHomeIcon />,
       path: "/properties/create",
     },
-    { text: "Contacts", icon: <ContactMailIcon />, path: "/admin/contacts" },
   ];
+
+  // Admin menu items
+  const adminMenuItems = [
+    {
+      text: "Admin Dashboard",
+      icon: <AdminPanelSettingsIcon />,
+      path: "/admin/dashboard",
+    },
+    { text: "Properties", icon: <HomeIcon />, path: "/properties" },
+    {
+      text: "Create Property",
+      icon: <AddHomeIcon />,
+      path: "/properties/create",
+    },
+    {
+      text: "Contact Messages",
+      icon: <ContactMailIcon />,
+      path: "/admin/contacts",
+    },
+  ];
+
+  const menuItems = isAdmin ? adminMenuItems : userMenuItems;
 
   const drawer = (
     <Box>
       <Toolbar>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Avatar>{getInitials(user?.username)}</Avatar>
+          <Avatar sx={{ bgcolor: isAdmin ? "error.main" : "primary.main" }}>
+            {getInitials(user?.username)}
+          </Avatar>
           <Box>
             <Typography variant="subtitle1" fontWeight="bold">
               {user?.username}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {user?.email}
+              {isAdmin ? "👑 Admin" : "👤 User"}
             </Typography>
           </Box>
         </Box>
@@ -119,7 +146,7 @@ const DashboardLayout = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Dashboard
+            {isAdmin ? "Admin Dashboard" : "Dashboard"}
           </Typography>
         </Toolbar>
       </AppBar>

@@ -15,9 +15,9 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import Button from "@components/common/Button";
-import { login } from "@features/auth/authSlice";
-import { loginSchema } from "@utils/validation";
+import Button from "../common/Button";
+import { login } from "../../features/auth/authSlice.js";
+import { loginSchema } from "../../utils/validation.js";
 
 const LoginForm = () => {
   const dispatch = useDispatch();

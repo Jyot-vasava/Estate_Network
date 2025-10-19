@@ -28,7 +28,7 @@ import {
   updateProperty,
   fetchPropertyById,
 } from "../../features/properties/propertySlice.js";
-import { propertySchema } from "../../utils/validation";
+import { propertySchema } from "../../utils/validation_property.js";
 import { AMENITIES } from "../../utils/constants";
 
 const PropertyForm = ({ isEdit = false }) => {
@@ -351,15 +351,55 @@ const PropertyForm = ({ isEdit = false }) => {
                 />
               </Grid>
 
+             
+
+              {/* Property Type */}
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <FormControl fullWidth error={!!errors.propertyType}>
+                  <InputLabel>Property Type *</InputLabel>
+                  <Controller
+                    name="propertyType"
+                    control={control}
+                    defaultValue="sale"
+                    render={({ field }) => (
+                      <Select {...field} label="Property Type *">
+                        <MenuItem value="sale">For Sale</MenuItem>
+                        <MenuItem value="rent">For Rent</MenuItem>
+                      </Select>
+                    )}
+                  />
+                  {errors.propertyType && (
+                    <Typography variant="caption" color="error">
+                      {errors.propertyType.message}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Grid>
+
               {/* Price */}
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
-                  label="Price (₹)"
+                  label="Price (₹) *"
                   type="number"
                   {...register("price")}
                   error={!!errors.price}
                   helperText={errors.price?.message}
+                />
+              </Grid>
+
+              {/* Discounted Price */}
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  fullWidth
+                  label="Discounted Price (₹) - Optional"
+                  type="number"
+                  {...register("discountedPrice")}
+                  error={!!errors.discountedPrice}
+                  helperText={
+                    errors.discountedPrice?.message ||
+                    "Leave empty if no discount"
+                  }
                 />
               </Grid>
 

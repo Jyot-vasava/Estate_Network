@@ -8,7 +8,12 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { isAuthenticated, loading, user } = useSelector((state) => state.auth);
   const location = useLocation();
 
-  console.log("ProtectedRoute:", { isAuthenticated, loading, user });
+  console.log("ProtectedRoute:", {
+    isAuthenticated,
+    loading,
+    user,
+    requireAdmin,
+  });
 
   if (loading) {
     return <Loader fullScreen />;
@@ -20,7 +25,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
   }
 
   if (requireAdmin && user?.role !== "admin") {
-    toast.error("Admin access required");
+    toast.error("Access denied - Admin only");
     return <Navigate to="/unauthorized" replace />;
   }
 
