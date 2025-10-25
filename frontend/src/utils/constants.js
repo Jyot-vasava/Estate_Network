@@ -4,7 +4,7 @@ export const API_BASE_URL =
 
 // App Info
 export const APP_NAME =
-  import.meta.env.VITE_APP_NAME || "Property Booking System";
+  import.meta.env.VITE_APP_NAME || "Network Estsate";
 export const APP_VERSION = import.meta.env.VITE_APP_VERSION || "1.0.0";
 
 // Local Storage Keys
