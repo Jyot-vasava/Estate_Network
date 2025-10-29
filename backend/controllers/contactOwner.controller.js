@@ -3,17 +3,17 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
 
- const contactOwner = asyncHandler(async (req, res) => {
+const contactOwner = asyncHandler(async (req, res) => {
   const { name, email, message, ownerEmail } = req.body;
 
   console.log("📧 Contact Owner Request:", { name, email, ownerEmail });
 
-  // Validation
-  if (!name || !email || !message || !ownerEmail) {
-    throw new ApiError(400, "All fields are required");
-  }
-
   try {
+    // Validation
+    if (!name || !email || !message || !ownerEmail) {
+      throw new ApiError(400, "All fields are required");
+    }
+
     // Create Ethereal test account (generates new credentials each time)
     console.log("🔄 Creating Ethereal test account...");
     const testAccount = await nodemailer.createTestAccount();

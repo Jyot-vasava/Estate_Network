@@ -89,6 +89,7 @@ const PropertyDetails = () => {
   const handleContactOwner = async () => {
     setContactLoading(true);
     try {
+      console.log("Contact Form Data:", contactForm);
       const response = await contactApi.contactOwner({
         ...contactForm,
         ownerEmail: currentProperty.contactEmail,
