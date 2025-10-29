@@ -4,7 +4,9 @@ import connectDB from "./DataBase/index.js"
 
 dotenv.config();
 
-
+app.get("/", (req, res) => {
+  res.send("API is working...");
+});
 
 connectDB()
   .then(() => {
