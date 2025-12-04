@@ -1,81 +1,85 @@
-frontend/
-├── public/
-│   ├── favicon.ico
-│   └── assets/
-│       └── images/
-├── src/
-│   ├── api/
-│   │   ├── axiosConfig.js
-│   │   ├── authApi.js
-│   │   ├── propertyApi.js
-│   │   ├── bookingApi.js
-│   │   └── contactApi.js
-│   ├── components/
-│   │   ├── common/
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── Footer.jsx
-│   │   │   ├── Loader.jsx
-│   │   │   ├── Button.jsx
-│   │   │   ├── Input.jsx
-│   │   │   ├── Card.jsx
-│   │   │   ├── Modal.jsx
-│   │   │   └── SearchBar.jsx
-│   │   ├── auth/
-│   │   │   ├── LoginForm.jsx
-│   │   │   ├── SignupForm.jsx
-│   │   │   └── ProtectedRoute.jsx
-│   │   ├── property/
-│   │   │   ├── PropertyCard.jsx
-│   │   │   ├── PropertyList.jsx
-│   │   │   ├── PropertyFilter.jsx
-│   │   │   ├── PropertyForm.jsx
-│   │   │   └── PropertyDetails.jsx
-│   │   ├── dashboard/
-│   │   │   ├── UserDashboard.jsx
-│   │   │   ├── AdminDashboard.jsx
-│   │   │   └── StatCard.jsx
-│   │   └── layout/
-│   │       ├── MainLayout.jsx
-│   │       ├── DashboardLayout.jsx
-│   │       └── AuthLayout.jsx
-│   ├── features/
-│   │   ├── auth/authSlice.js
-│   │   ├── properties/propertySlice.js
-│   │   ├── bookings/bookingSlice.js
-│   │   └── theme/themeSlice.js
-│   ├── hooks/
-│   │   ├── useAuth.js
-│   │   ├── useDebounce.js
-│   │   ├── useLocalStorage.js
-│   │   └── useTheme.js
-│   ├── pages/
-│   │   ├── Home.jsx
-│   │   ├── Login.jsx
-│   │   ├── Signup.jsx
-│   │   ├── Properties.jsx
-│   │   ├── PropertyDetails.jsx
-│   │   ├── CreateProperty.jsx
-│   │   ├── EditProperty.jsx
-│   │   ├── Contact.jsx
-│   │   ├── UserDashboard.jsx
-│   │   ├── AdminDashboard.jsx
-│   │   ├── NotFound.jsx
-│   │   └── Unauthorized.jsx
-│   ├── routes/AppRoutes.jsx
-│   ├── store/store.js
-│   ├── utils/
-│   │   ├── constants.js
-│   │   ├── helpers.js
-│   │   └── validation.js
-│   ├── styles/global.css
-│   ├── App.jsx
-│   └── main.jsx
-├── .env
-├── .env.example
-├── .gitignore
-├── index.html
-├── package.json
-├── tailwind.config.js
-├── postcss.config.js
-├── vite.config.js
-└── README.md
+
+flowchart TD
+    A[frontend] --> B[public]
+    B --> B1[favicon.ico]
+    B --> B2[assets]
+    B2 --> B3[images]
+    A --> C[src]
+    C --> C1[api]
+    C1 --> C1a[axiosConfig.js]
+    C1 --> C1b[authApi.js]
+    C1 --> C1c[propertyApi.js]
+    C1 --> C1d[bookingApi.js]
+    C1 --> C1e[contactApi.js]
+    C --> C2[components]
+    C2 --> C2a[common]
+    C2a --> C2a1[Navbar.jsx]
+    C2a --> C2a2[Footer.jsx]
+    C2a --> C2a3[Loader.jsx]
+    C2a --> C2a4[Button.jsx]
+    C2a --> C2a5[Input.jsx]
+    C2a --> C2a6[Card.jsx]
+    C2a --> C2a7[Modal.jsx]
+    C2a --> C2a8[SearchBar.jsx]
+    C2 --> C2b[auth]
+    C2b --> C2b1[LoginForm.jsx]
+    C2b --> C2b2[SignupForm.jsx]
+    C2b --> C2b3[ProtectedRoute.jsx]
+    C2 --> C2c[property]
+    C2c --> C2c1[PropertyCard.jsx]
+    C2c --> C2c2[PropertyList.jsx]
+    C2c --> C2c3[PropertyFilter.jsx]
+    C2c --> C2c4[PropertyForm.jsx]
+    C2c --> C2c5[PropertyDetails.jsx]
+    C2 --> C2d[dashboard]
+    C2d --> C2d1[UserDashboard.jsx]
+    C2d --> C2d2[AdminDashboard.jsx]
+    C2d --> C2d3[StatCard.jsx]
+    C2 --> C2e[layout]
+    C2e --> C2e1[MainLayout.jsx]
+    C2e --> C2e2[DashboardLayout.jsx]
+    C2e --> C2e3[AuthLayout.jsx]
+    C --> C3[features]
+    C3 --> C3a[authSlice.js]
+    C3 --> C3b[propertySlice.js]
+    C3 --> C3c[bookingSlice.js]
+    C3 --> C3d[themeSlice.js]
+    C --> C4[hooks]
+    C4 --> C4a[useAuth.js]
+    C4 --> C4b[useDebounce.js]
+    C4 --> C4c[useLocalStorage.js]
+    C4 --> C4d[useTheme.js]
+    C --> C5[pages]
+    C5 --> C5a[Home.jsx]
+    C5 --> C5b[Login.jsx]
+    C5 --> C5c[Signup.jsx]
+    C5 --> C5d[Properties.jsx]
+    C5 --> C5e[PropertyDetails.jsx]
+    C5 --> C5f[CreateProperty.jsx]
+    C5 --> C5g[EditProperty.jsx]
+    C5 --> C5h[Contact.jsx]
+    C5 --> C5i[UserDashboard.jsx]
+    C5 --> C5j[AdminDashboard.jsx]
+    C5 --> C5k[NotFound.jsx]
+    C5 --> C5l[Unauthorized.jsx]
+    C --> C6[routes]
+    C6 --> C6a[AppRoutes.jsx]
+    C --> C7[store]
+    C7 --> C7a[store.js]
+    C --> C8[utils]
+    C8 --> C8a[constants.js]
+    C8 --> C8b[helpers.js]
+    C8 --> C8c[validation.js]
+    C --> C9[styles]
+    C9 --> C9a[global.css]
+    C --> C10[App.jsx]
+    C --> C11[main.jsx]
+    A --> D[.env]
+    A --> E[.env.example]
+    A --> F[.gitignore]
+    A --> G[index.html]
+    A --> H[package.json]
+    A --> I[tailwind.config.js]
+    A --> J[postcss.config.js]
+    A --> K[vite.config.js]
+    A --> L[README.md]
