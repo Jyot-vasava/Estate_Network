@@ -16,7 +16,7 @@ import EditProperty from "../pages/EditProperty";
 import Contact from "../pages/Contact";
 import UserDashboard from "../pages/UserDashboard";
 import AdminDashboard from "../pages/AdminDashboard";
-import AdminContacts from "../pages/AdminContacts"; // Add this
+import AdminContacts from "../pages/AdminContacts"; 
 import NotFound from "../pages/NotFound";
 import Unauthorized from "../pages/Unauthorized";
 
@@ -50,7 +50,7 @@ const AppRoutes = () => {
         <Route path="/properties/create" element={<CreateProperty />} />
         <Route path="/properties/edit/:id" element={<EditProperty />} />
         <Route path="/admin/contacts" element={<AdminContacts />} />{" "}
-        {/* Add this */}
+       
       </Route>
 
       {/* Admin Routes */}
