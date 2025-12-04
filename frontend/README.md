@@ -1,4 +1,4 @@
-
+```mermaid
 flowchart TD
     A[frontend] --> B[public]
     B --> B1[favicon.ico]
@@ -83,3 +83,4 @@ flowchart TD
     A --> J[postcss.config.js]
     A --> K[vite.config.js]
     A --> L[README.md]
+```
