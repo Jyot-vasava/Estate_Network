@@ -351,8 +351,6 @@ const PropertyForm = ({ isEdit = false }) => {
                 />
               </Grid>
 
-             
-
               {/* Property Type */}
               <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth error={!!errors.propertyType}>
@@ -398,8 +396,9 @@ const PropertyForm = ({ isEdit = false }) => {
                   error={!!errors.discountedPrice}
                   helperText={
                     errors.discountedPrice?.message ||
-                    "Leave empty if no discount"
+                    "Leave empty for no discount"
                   }
+                  placeholder="Leave empty for no discount"
                 />
               </Grid>
 

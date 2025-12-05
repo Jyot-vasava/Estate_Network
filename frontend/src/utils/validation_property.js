@@ -74,11 +74,12 @@ export const propertySchema = yup.object({
     .number()
     .required(VALIDATION_MESSAGES.REQUIRED)
     .positive("Must be positive")
-    .min(100000, VALIDATION_MESSAGES.NUMBER_MIN(100000)),
+    .min(500, VALIDATION_MESSAGES.NUMBER_MIN(500)),
   discountedPrice: yup
     .number()
-    .nullable()
-    .positive("Must be positive")
+    .nullable(true)
+    .optional()
+    .min(0, "Discounted price cannot be negative")
     .test(
       "is-less-than-price",
       "Discounted price must be less than original price",
