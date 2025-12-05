@@ -2,9 +2,9 @@
 
 A **full-stack real estate marketplace** built with MERN stack (MongoDB, Express, React, Node.js) featuring property listings, secure authentication, admin dashboard, real email notifications, image uploads, and responsive design.
 
-**Demo Video:** https://youtu.be/ZgKTtgh48uY
-**Live Demo:** currently working on some functionality 
-**Backend:** currently working on some functionality 
+**Demo Video:** https://youtu.be/ZgKTtgh48uY ||
+ **Live Demo:** currently working on some functionality || 
+ **Backend:** currently working on some functionality 
 
 ---
 
@@ -35,5 +35,6 @@ A **full-stack real estate marketplace** built with MERN stack (MongoDB, Express
 | Deployment   | Vercel (Frontend) • Render (Backend)    |
 
 ---
+
 
 
