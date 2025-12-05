@@ -3,7 +3,7 @@ import User from "../models/User.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
-const makeAdmin = AsyncHandler(async (req, res) => {
+ export const makeAdmin = AsyncHandler(async (req, res) => {
   const { email } = req.body;
 
   if (!email) throw new ApiError(400, "Email is required");
@@ -25,4 +25,3 @@ const makeAdmin = AsyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User promoted to admin"));
 });
 
-export { makeAdmin };

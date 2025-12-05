@@ -57,7 +57,14 @@ const loginUser = AsyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  const options = { httpOnly: true, secure: true, sameSite: "strict" };
+  const options = {
+    httpOnly: true,
+    secure: isProduction, 
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+    domain: "localhost",
+    maxAge: 24 * 60 * 60 * 1000,
+  };
 
   return res
     .status(200)
@@ -66,7 +73,15 @@ const loginUser = AsyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { user: loggedInUser, accessToken },
+        {
+          user: {
+            _id: loggedInUser._id,
+            username: loggedInUser.username,
+            email: loggedInUser.email,
+            role: loggedInUser.role, 
+          },
+          accessToken,
+        },
         "Login successful"
       )
     );

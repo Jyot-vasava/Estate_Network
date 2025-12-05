@@ -14,4 +14,8 @@ router.route("/login").post(loginUser);
 router.route("/logout").post(authMiddleware, logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
 
+router.route("/me").get(authMiddleware, (req, res) => {
+  res.status(200).json(new ApiResponse(200, { user: req.user }, "User fetched"));
+});
+
 export default router;
