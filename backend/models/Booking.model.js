@@ -1,50 +1,28 @@
-import mongoose,{Schema} from "mongoose";
-import { v4 as uuidv4 } from "uuid";
+import mongoose from "mongoose";
 
-const bookingSchema = new Schema(
+const bookingSchema = new mongoose.Schema(
   {
-    bookingId: {
-      type: String,
-      default: uuidv4,
-    },
     userId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     propertyId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Property",
-      required: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    accountNumber: {
-      type: String,
-      required: true,
-    },
-    expiryDate: {
-      type: String,
-      required: true,
-    },
-    ccv: {
-      type: String,
       required: true,
     },
     amount: {
       type: Number,
       required: true,
     },
-    date: {
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+    },
+    paymentId: String, // From Stripe/PayPal
+    bookingDate: {
       type: Date,
       default: Date.now,
     },
@@ -52,4 +30,4 @@ const bookingSchema = new Schema(
   { timestamps: true }
 );
 
-export const Booking = mongoose.model("Booking", bookingSchema);
+export default mongoose.model("Booking", bookingSchema);

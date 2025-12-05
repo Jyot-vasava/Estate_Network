@@ -1,12 +1,9 @@
-import express from "express"
-import {
-  processPayment,
-  sendConfirmationEmail,
-} from "../controllers/booking.controller.js"
+import { Router } from "express";
+import { processPayment } from "../controllers/booking.controller.js";
+import authMiddleware from "../middleware/auth.middleware.js";
 
-const router = express.Router();
+const router = Router();
 
-router.route('/payment').post(processPayment)
-router.route("/confirmation-email").post(sendConfirmationEmail)
+router.route("/payment").post(authMiddleware, processPayment);
 
-export default router
+export default router;

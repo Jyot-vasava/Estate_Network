@@ -1,16 +1,14 @@
-import { asyncHandler } from "../utils/AsyncHandler.js";
-import {ApiError} from "../utils/ApiError.js";
+import ApiError from "../utils/ApiError.js";
+import AsyncHandler from "../utils/AsyncHandler.js";
 
-const isAdmin = asyncHandler(async (req, res, next) => {
-  if (!req.user) {
-    throw new ApiError(401, "Unauthorized - Please login first");
-  }
+const isAdminMiddleware = AsyncHandler(async (req, res, next) => {
+  if (!req.user) throw new ApiError(401, "Unauthorized");
 
   if (req.user.role !== "admin") {
-    throw new ApiError(403, "Access denied - Admin only");
+    throw new ApiError(403, "Forbidden: Admin access required");
   }
 
   next();
 });
 
-export  {isAdmin};
+export default isAdminMiddleware;

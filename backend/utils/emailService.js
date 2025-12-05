@@ -3,20 +3,23 @@ import nodemailer from "nodemailer";
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASSWORD,
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
- const sendConfirmationEmail = (email, bookingDetails) => {
-  const mailOptions = {
-    from: process.env.EMAIL,
-    to: email,
-    subject: "Your Booking is Confirmed!",
-    text: `Dear Customer,\n\nYour booking is confirmed.\n\nDetails:\n${bookingDetails}\n\nThank you for booking with us.`,
-  };
-
-  return transporter.sendMail(mailOptions);
+const sendEmail = async (to, subject, text, html = "") => {
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      text,
+      html,
+    });
+  } catch (error) {
+    console.error("Email failed:", error);
+  }
 };
 
-export { sendConfirmationEmail }
+export default sendEmail;
