@@ -41,6 +41,7 @@ const LoginForm = () => {
 
   const onSubmit = async (data) => {
     await dispatch(login(data));
+    console.log(data)
   };
 
   return (

@@ -8,8 +8,11 @@ const axiosInstance = axios.create({
   withCredentials: true, // This sends cookies
 });
 
+
+
 // Optional: log for debugging
 axiosInstance.interceptors.request.use((config) => {
+  console.log(API_BASE_URL);
   console.log("Request to:", config.url);
   return config;
 });

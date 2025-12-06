@@ -396,9 +396,9 @@ const PropertyForm = ({ isEdit = false }) => {
                   error={!!errors.discountedPrice}
                   helperText={
                     errors.discountedPrice?.message ||
-                    "Leave empty for no discount"
+                    "Set 0 for no discount"
                   }
-                  placeholder="Leave empty for no discount"
+                  placeholder="0"
                 />
               </Grid>
 
