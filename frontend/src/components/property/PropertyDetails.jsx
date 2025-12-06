@@ -405,29 +405,14 @@ const PropertyDetails = () => {
                 </ListItem>
               </List>
 
+              {/* Action Buttons — ONLY SHOW ONE BASED ON OWNERSHIP */}
               {isAuthenticated && (
                 <>
-                  {/* Show Contact Owner button only if NOT the owner */}
-                  {!isOwner && (
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      onClick={() => setContactDialogOpen(true)}
-                      sx={{ mb: 2 }}
-                    >
-                      Contact Owner
-                    </Button>
-                  )}
-
-                  {/* Show Edit/Delete buttons only if IS the owner */}
-                  {isOwner && (
-                    <Box
-                      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-                    >
+                  {/* IF YOU ARE THE OWNER → SHOW EDIT & DELETE */}
+                  {isOwner ? (
+                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                       <Button
                         variant="contained"
-                        color="primary"
-                        fullWidth
                         startIcon={<EditIcon />}
                         onClick={() => navigate(`/properties/edit/${id}`)}
                       >
@@ -436,25 +421,45 @@ const PropertyDetails = () => {
                       <Button
                         variant="outlined"
                         color="error"
-                        fullWidth
                         startIcon={<DeleteIcon />}
                         onClick={() => setDeleteDialogOpen(true)}
                       >
                         Delete Property
                       </Button>
                     </Box>
+                  ) : (
+                    /* IF NOT OWNER → SHOW CONTACT OWNER */
+                    <Button
+                      variant="contained"
+                      size="large"
+                      fullWidth
+                      onClick={() => setContactDialogOpen(true)}
+                      sx={{ py: 1.5 }}
+                    >
+                      Contact Owner
+                    </Button>
                   )}
                 </>
               )}
 
+              {/* IF NOT LOGGED IN → SHOW LOGIN PROMPT */}
               {!isAuthenticated && (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  textAlign="center"
-                >
-                  Please login to contact the owner
-                </Typography>
+                <Box sx={{ textAlign: "center", mt: 3 }}>
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Want to contact the owner?
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => navigate("/login")}
+                  >
+                    Login to Continue
+                  </Button>
+                </Box>
               )}
             </Paper>
 
