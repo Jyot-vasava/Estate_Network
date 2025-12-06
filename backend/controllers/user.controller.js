@@ -41,12 +41,13 @@ const signupUser = AsyncHandler(async (req, res) => {
 
 const loginUser = AsyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
-
+  
   if (!email && !username)
     throw new ApiError(400, "Email or username is required");
   if (!password) throw new ApiError(400, "Password is required");
 
   const user = await User.findOne({ $or: [{ email }, { username }] });
+  console.log(user)
   if (!user) throw new ApiError(404, "User not found");
 
   const isValid = await user.comparePassword(password);
@@ -59,10 +60,10 @@ const loginUser = AsyncHandler(async (req, res) => {
 
   const options = {
     httpOnly: true,
-    secure: isProduction, 
-    sameSite: isProduction ? "none" : "lax",
-    path: "/",
-    domain: "localhost",
+     secure: false,
+     sameSite: "lax",
+     path: "/",
+  
     maxAge: 24 * 60 * 60 * 1000,
   };
 

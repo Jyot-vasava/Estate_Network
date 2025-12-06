@@ -19,8 +19,10 @@ app.use(
     credentials: true, // allow cookies
   })
 );
+ //localhost:5000/api/v1/users/login
+ 
 
-app.use(cookieParser());
+ http: app.use(cookieParser());
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -35,7 +37,7 @@ app.use("/api/v1/contact-owner", contactOwnerRouter);
 app.use("/api/v1/admin", adminRouter);
 
 // Health
-app.get("/", (req, res) => res.json({ success: true, message: "API Running" }));
+app.get("/", (req, res) => res.json({ success: true, message: "API this is diffi" }));
 
 // 404
 app.use("*", (req, res, next) => next(new ApiError(404, "Route not found")));
