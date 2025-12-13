@@ -124,13 +124,26 @@ const propertySlice = createSlice({
       })
       .addCase(fetchProperties.fulfilled, (state, action) => {
         state.loading = false;
-        state.properties = action.payload.data;
-        state.pagination.total = action.payload.data.length;
+
+        // Safe data extraction - handles multiple response structures
+        const data = action.payload?.data || action.payload;
+
+        if (Array.isArray(data)) {
+          state.properties = data;
+          state.pagination.total = data.length;
+        } else if (data?.properties && Array.isArray(data.properties)) {
+          state.properties = data.properties;
+          state.pagination.total = data.properties.length;
+        } else {
+          state.properties = [];
+          state.pagination.total = 0;
+        }
       })
       .addCase(fetchProperties.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        toast.error(action.payload);
+        state.properties = [];
+        toast.error(action.payload || "Failed to fetch properties");
       });
 
     // Fetch property by ID
@@ -141,12 +154,15 @@ const propertySlice = createSlice({
       })
       .addCase(fetchPropertyById.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentProperty = action.payload.data;
+
+        // Safe data extraction
+        const data = action.payload?.data || action.payload;
+        state.currentProperty = data?.property || data || null;
       })
       .addCase(fetchPropertyById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        toast.error(action.payload);
+        toast.error(action.payload || "Failed to fetch property");
       });
 
     // Create property
@@ -157,13 +173,21 @@ const propertySlice = createSlice({
       })
       .addCase(createProperty.fulfilled, (state, action) => {
         state.loading = false;
-        state.properties.unshift(action.payload.data);
+
+        const data = action.payload?.data || action.payload;
+        const newProperty = data?.property || data;
+
+        if (newProperty) {
+          state.properties.unshift(newProperty);
+          state.pagination.total += 1;
+        }
+
         toast.success("Property created successfully!");
       })
       .addCase(createProperty.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        toast.error(action.payload);
+        toast.error(action.payload || "Failed to create property");
       });
 
     // Update property
@@ -174,19 +198,26 @@ const propertySlice = createSlice({
       })
       .addCase(updateProperty.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.properties.findIndex(
-          (p) => p._id === action.payload.data._id
-        );
-        if (index !== -1) {
-          state.properties[index] = action.payload.data;
+
+        const data = action.payload?.data || action.payload;
+        const updatedProperty = data?.property || data;
+
+        if (updatedProperty?._id) {
+          const index = state.properties.findIndex(
+            (p) => p._id === updatedProperty._id
+          );
+          if (index !== -1) {
+            state.properties[index] = updatedProperty;
+          }
+          state.currentProperty = updatedProperty;
         }
-        state.currentProperty = action.payload.data;
+
         toast.success("Property updated successfully!");
       })
       .addCase(updateProperty.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        toast.error(action.payload);
+        toast.error(action.payload || "Failed to update property");
       });
 
     // Delete property
@@ -200,12 +231,13 @@ const propertySlice = createSlice({
         state.properties = state.properties.filter(
           (p) => p._id !== action.payload
         );
+        state.pagination.total = Math.max(0, state.pagination.total - 1);
         toast.success("Property deleted successfully!");
       })
       .addCase(deleteProperty.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        toast.error(action.payload);
+        toast.error(action.payload || "Failed to delete property");
       });
   },
 });

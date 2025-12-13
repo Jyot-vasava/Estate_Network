@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -17,12 +16,11 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "../common/Button";
 import { login } from "../../features/auth/authSlice.js";
-import { loginSchema } from "../../utils/validation.js";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, isAuthenticated } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const {
@@ -30,139 +28,109 @@ const LoginForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(loginSchema),
+    mode: "onSubmit",
+    // TEMPORARILY DISABLE VALIDATION
+    // resolver: yupResolver(loginSchema),
   });
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
-    }
-  }, [isAuthenticated, navigate]);
-
   const onSubmit = async (data) => {
-    await dispatch(login(data));
-    console.log(data)
+    alert("FORM SUBMITTED! Check console.");
+    console.log("=== FORM DATA ===", data);
+    console.log("Errors:", errors);
+
+    try {
+      const resultAction = await dispatch(login(data));
+      console.log("Login result:", resultAction);
+
+      if (login.fulfilled.match(resultAction)) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+    }
   };
 
+  // Log when component renders
+  console.log("LoginForm rendered");
+  console.log("Form errors:", errors);
+
   return (
-    <Box className="page-container">
-      <Box className="container-custom">
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: "80vh",
-          }}
-        >
-          <Paper
-            elevation={3}
-            sx={{
-              p: 4,
-              maxWidth: 450,
-              width: "100%",
-              borderRadius: 2,
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 2,
+      }}
+    >
+      <Paper elevation={3} sx={{ padding: 4, maxWidth: 450, width: "100%" }}>
+        <Typography variant="h4" gutterBottom align="center">
+          Welcome Back
+        </Typography>
+
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            fullWidth
+            label="Email"
+            type="email"
+            margin="normal"
+            {...register("email", { required: "Email is required" })}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon />
+                </InputAdornment>
+              ),
             }}
-          >
-            <Typography
-              variant="h4"
-              component="h1"
-              gutterBottom
-              fontWeight="bold"
-              textAlign="center"
-            >
-              Welcome Back
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              textAlign="center"
-              mb={3}
-            >
-              Login to your account to continue
-            </Typography>
+          />
 
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <TextField
-                  fullWidth
-                  label="Email or Username"
-                  {...register("email")}
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  {...register("password")}
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <Box sx={{ textAlign: "right" }}>
-                  <Link
-                    to="/forgot-password"
-                    style={{ textDecoration: "none" }}
+          <TextField
+            fullWidth
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            margin="normal"
+            {...register("password", { required: "Password is required" })}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
                   >
-                    <Typography variant="body2" color="primary">
-                      Forgot Password?
-                    </Typography>
-                  </Link>
-                </Box>
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  loading={loading}
-                  size="large"
-                >
-                  Login
-                </Button>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            size="large"
+            loading={loading}
+            sx={{ mt: 3, mb: 2 }}
+            onClick={() => console.log("Button clicked directly")}
+          >
+            Login
+          </Button>
 
-                <Typography variant="body2" textAlign="center" mt={2}>
-                  Don't have an account?{" "}
-                  <Link to="/signup" style={{ textDecoration: "none" }}>
-                    <Typography
-                      component="span"
-                      color="primary"
-                      fontWeight="bold"
-                    >
-                      Sign Up
-                    </Typography>
-                  </Link>
-                </Typography>
-              </Box>
-            </form>
-          </Paper>
+          <Typography variant="body2" align="center">
+            Don't have an account? <Link to="/signup">Sign Up</Link>
+          </Typography>
         </Box>
-      </Box>
+      </Paper>
     </Box>
   );
 };

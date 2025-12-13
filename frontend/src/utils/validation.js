@@ -5,10 +5,10 @@ import { VALIDATION_MESSAGES, REGEX } from "./constants";
  * Login Form Validation Schema
  */
 export const loginSchema = yup.object({
-  email: yup
+  identifier: yup
     .string()
     .required(VALIDATION_MESSAGES.REQUIRED)
-    .email(VALIDATION_MESSAGES.EMAIL_INVALID),
+    .min(3, VALIDATION_MESSAGES.STRING_MIN(3)), // Allows email or username
   password: yup
     .string()
     .required(VALIDATION_MESSAGES.REQUIRED)
@@ -143,31 +143,5 @@ export const contactSchema = yup.object({
     .max(1000, VALIDATION_MESSAGES.STRING_MAX(1000)),
 });
 
-/**
- * Forgot Password Validation Schema
- */
-export const forgotPasswordSchema = yup.object({
-  email: yup
-    .string()
-    .required(VALIDATION_MESSAGES.REQUIRED)
-    .email(VALIDATION_MESSAGES.EMAIL_INVALID),
-});
 
-/**
- * Reset Password Validation Schema
- */
-export const resetPasswordSchema = yup.object({
-  oldPassword: yup
-    .string()
-    .required(VALIDATION_MESSAGES.REQUIRED)
-    .min(8, VALIDATION_MESSAGES.PASSWORD_MIN),
-  newPassword: yup
-    .string()
-    .required(VALIDATION_MESSAGES.REQUIRED)
-    .min(8, VALIDATION_MESSAGES.PASSWORD_MIN)
-    .max(50, VALIDATION_MESSAGES.PASSWORD_MAX),
-  confirmPassword: yup
-    .string()
-    .required(VALIDATION_MESSAGES.REQUIRED)
-    .oneOf([yup.ref("newPassword")], "Passwords must match"),
-});
+

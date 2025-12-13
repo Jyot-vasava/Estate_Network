@@ -1,4 +1,3 @@
-// main.jsx
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { Provider, useDispatch } from "react-redux";
@@ -10,16 +9,18 @@ const Root = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(checkAuth());
+    // Silent auth check - doesn't show errors to user
+    dispatch(checkAuth()).catch(() => {
+      // Silently fail - user just isn't logged in
+      console.log("User not authenticated");
+    });
   }, [dispatch]);
 
   return <App />;
 };
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <Root />
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <Root />
+  </Provider>
 );

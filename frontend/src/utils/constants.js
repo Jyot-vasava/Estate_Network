@@ -1,8 +1,6 @@
 // API Base URL
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
-
-
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1"; // Updated default to match backend PORT
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
@@ -28,7 +26,6 @@ export const API_ENDPOINTS = {
   CREATE_PROPERTY: "/properties",
   UPDATE_PROPERTY: (id) => `/properties/${id}`,
   DELETE_PROPERTY: (id) => `/properties/${id}`,
-
 
   // Contacts
   CONTACTS: "/contacts",
@@ -115,7 +112,6 @@ export const TOAST_MESSAGES = {
   PROPERTY_CREATED: "Property created successfully!",
   PROPERTY_UPDATED: "Property updated successfully!",
   PROPERTY_DELETED: "Property deleted successfully!",
-
 
   // Contacts
   CONTACT_SENT: "Message sent successfully!",
