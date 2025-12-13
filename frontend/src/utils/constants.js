@@ -2,10 +2,7 @@
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 
-// App Info
-export const APP_NAME =
-  import.meta.env.VITE_APP_NAME || "Property Booking System";
-export const APP_VERSION = import.meta.env.VITE_APP_VERSION || "1.0.0";
+
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
@@ -32,10 +29,6 @@ export const API_ENDPOINTS = {
   UPDATE_PROPERTY: (id) => `/properties/${id}`,
   DELETE_PROPERTY: (id) => `/properties/${id}`,
 
-  // Bookings
-  BOOKINGS: "/bookings",
-  PROCESS_PAYMENT: "/bookings/payment",
-  SEND_CONFIRMATION: "/bookings/confirmation-email",
 
   // Contacts
   CONTACTS: "/contacts",
@@ -123,9 +116,6 @@ export const TOAST_MESSAGES = {
   PROPERTY_UPDATED: "Property updated successfully!",
   PROPERTY_DELETED: "Property deleted successfully!",
 
-  // Bookings
-  BOOKING_SUCCESS: "Booking successful!",
-  PAYMENT_SUCCESS: "Payment processed successfully!",
 
   // Contacts
   CONTACT_SENT: "Message sent successfully!",

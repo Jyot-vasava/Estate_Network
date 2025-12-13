@@ -28,16 +28,11 @@ const AdminDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { properties } = useSelector((state) => state.properties);
-  const { bookings } = useSelector((state) => state.bookings);
 
   useEffect(() => {
     dispatch(fetchProperties());
   }, [dispatch]);
 
-  const totalRevenue = bookings?.reduce(
-    (sum, booking) => sum + booking.amount,
-    0
-  );
 
   return (
     <Box>
@@ -77,22 +72,7 @@ const AdminDashboard = () => {
             color="primary"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard
-            title="Total Bookings"
-            value={bookings?.length || 0}
-            icon={<PeopleIcon />}
-            color="success"
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <StatCard
-            title="Total Revenue"
-            value={formatCurrency(totalRevenue || 0)}
-            icon={<AttachMoneyIcon />}
-            color="warning"
-          />
-        </Grid>
+       
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Messages"
@@ -143,43 +123,7 @@ const AdminDashboard = () => {
         </TableContainer>
       </Paper>
 
-      {/* Recent Bookings */}
-      <Paper elevation={2} sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom fontWeight="bold">
-          Recent Bookings
-        </Typography>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Booking ID</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Date</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {bookings?.slice(0, 5).map((booking) => (
-                <TableRow key={booking._id}>
-                  <TableCell>{booking.bookingId}</TableCell>
-                  <TableCell>{booking.name}</TableCell>
-                  <TableCell>{formatCurrency(booking.amount)}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label="Completed"
-                      color="success"
-                      size="small"
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell>{formatDate(booking.createdAt)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+  
     </Box>
   );
 };

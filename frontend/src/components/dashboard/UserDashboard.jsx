@@ -27,7 +27,6 @@ const UserDashboard = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { properties } = useSelector((state) => state.properties);
-  const { bookings } = useSelector((state) => state.bookings);
 
   useEffect(() => {
     dispatch(fetchProperties());
@@ -79,14 +78,6 @@ const UserDashboard = () => {
             value={myProperties.length}
             icon={<HomeIcon />}
             color="primary"
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <StatCard
-            title="Total Bookings"
-            value={bookings?.length || 0}
-            icon={<BookmarkIcon />}
-            color="secondary"
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
@@ -178,39 +169,6 @@ const UserDashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Recent Bookings */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper elevation={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom fontWeight="bold">
-              Recent Bookings
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            {bookings && bookings.length > 0 ? (
-              <List>
-                {bookings.slice(0, 5).map((booking, index) => (
-                  <ListItem key={index} divider>
-                    <ListItemText
-                      primary={`Booking #${booking.bookingId}`}
-                      secondary={`Amount: ${formatCurrency(booking.amount)}`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Box sx={{ textAlign: "center", py: 4 }}>
-                <Typography variant="body2" color="text.secondary" mb={2}>
-                  No bookings yet
-                </Typography>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate("/properties")}
-                >
-                  Browse Properties
-                </Button>
-              </Box>
-            )}
-          </Paper>
-        </Grid>
       </Grid>
     </Box>
   );

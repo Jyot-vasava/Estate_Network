@@ -6,7 +6,6 @@ import ApiError from "./utils/ApiError.js";
 
 import userRouter from "./routes/user.router.js";
 import propertyRouter from "./routes/property.router.js";
-import bookingRouter from "./routes/booking.router.js";
 import contactRouter from "./routes/contact.router.js";
 import contactOwnerRouter from "./routes/contactOwner.router.js";
 import adminRouter from "./routes/admin.router.js";
@@ -31,7 +30,6 @@ app.use("/uploads", express.static("uploads"));
 // Routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/properties", propertyRouter);
-app.use("/api/v1/bookings", bookingRouter);
 app.use("/api/v1/contacts", contactRouter);
 app.use("/api/v1/contact-owner", contactOwnerRouter);
 app.use("/api/v1/admin", adminRouter);

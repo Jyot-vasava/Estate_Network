@@ -35,11 +35,6 @@ const Home = () => {
       description: "Choose from thousands of verified properties across India",
     },
     {
-      icon: <SecurityIcon fontSize="large" />,
-      title: "Secure Booking",
-      description: "Your transactions are safe and secure with us",
-    },
-    {
       icon: <SupportAgentIcon fontSize="large" />,
       title: "24/7 Support",
       description: "Our team is always here to help you",
