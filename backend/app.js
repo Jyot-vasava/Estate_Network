@@ -1,4 +1,3 @@
-// app.js
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -11,7 +10,6 @@ import adminRouter from "./routes/admin.router.js";
 
 const app = express();
 
-// Flexible CORS - accepts multiple origins
 const allowedOrigins = [
   "http://localhost:3000", // React default
   "http://localhost:5173", // Vite default

@@ -9,11 +9,13 @@ import isAdminMiddleware from "../middleware/isAdmin.middleware.js";
 
 const router = Router();
 
-// Public
+// Public - anyone can submit a contact form
 router.route("/").post(createContact);
 
-// Admin only
+// Admin only - get all contacts
 router.route("/").get(authMiddleware, isAdminMiddleware, getAllContacts);
+
+// Admin only - individual contact operations
 router.route("/:id").delete(authMiddleware, isAdminMiddleware, deleteContact);
 
 export default router;

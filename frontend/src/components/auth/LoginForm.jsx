@@ -34,10 +34,6 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (data) => {
-    alert("FORM SUBMITTED! Check console.");
-    console.log("=== FORM DATA ===", data);
-    console.log("Errors:", errors);
-
     try {
       const resultAction = await dispatch(login(data));
       console.log("Login result:", resultAction);

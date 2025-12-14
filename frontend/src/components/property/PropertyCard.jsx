@@ -92,20 +92,6 @@ const PropertyCard = ({ property, onFavorite }) => {
           />
         )}
 
-        {/* Favorite Button */}
-        <IconButton
-          sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            bgcolor: "white",
-            "&:hover": { bgcolor: "white" },
-          }}
-          onClick={handleFavoriteClick}
-        >
-          {isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-        </IconButton>
-
         {/* Price */}
         <Box
           sx={{

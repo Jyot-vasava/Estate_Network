@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import {
   Box,
   Container,
@@ -18,10 +17,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
 import { contactApi } from "../api/contactApi.js";
 import { formatDate } from "../utils/helper.js";
@@ -32,10 +33,12 @@ const AdminContacts = () => {
   const navigate = useNavigate();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedContact, setSelectedContact] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contactToDelete, setContactToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchContacts();
@@ -44,11 +47,42 @@ const AdminContacts = () => {
   const fetchContacts = async () => {
     try {
       setLoading(true);
+      setError(null);
+
+      console.log("🔄 Fetching contacts...");
       const response = await contactApi.getAllContacts();
-      setContacts(response.data);
+
+      console.log("✅ Contacts response:", response);
+
+      // Handle different response structures
+      const contactsData = response.data?.contacts || response.data || [];
+
+      setContacts(contactsData);
+
+      if (contactsData.length === 0) {
+        console.log("ℹ️ No contacts found");
+      }
     } catch (error) {
-      console.error("Error fetching contacts:", error);
-      toast.error("Failed to fetch contacts");
+      console.error("❌ Error fetching contacts:", error);
+
+      // Handle authentication errors
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Session expired. Please login again.");
+        // Clear auth data
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        // Redirect to login
+        setTimeout(() => navigate("/login"), 1500);
+        return;
+      }
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch contacts";
+
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -65,16 +99,43 @@ const AdminContacts = () => {
   };
 
   const handleDelete = async () => {
+    if (!contactToDelete?._id) return;
+
     try {
+      setDeleting(true);
+      console.log("🗑️ Deleting contact:", contactToDelete._id);
+
       await contactApi.deleteContact(contactToDelete._id);
+
       toast.success("Contact deleted successfully");
       setDeleteDialogOpen(false);
       setContactToDelete(null);
-      fetchContacts();
+
+      // Remove from local state immediately
+      setContacts((prev) => prev.filter((c) => c._id !== contactToDelete._id));
     } catch (error) {
-      console.error("Error deleting contact:", error);
-      toast.error("Failed to delete contact");
+      console.error("❌ Error deleting contact:", error);
+
+      // Handle authentication errors
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("Session expired. Please login again.");
+        setTimeout(() => navigate("/login"), 1500);
+        return;
+      }
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to delete contact";
+
+      toast.error(errorMessage);
+    } finally {
+      setDeleting(false);
     }
+  };
+
+  const handleRetry = () => {
+    fetchContacts();
   };
 
   if (loading) {
@@ -90,19 +151,46 @@ const AdminContacts = () => {
             justifyContent: "space-between",
             alignItems: "center",
             mb: 3,
+            flexWrap: "wrap",
+            gap: 2,
           }}
         >
           <Typography variant="h4" fontWeight="bold">
             Contact Messages
           </Typography>
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate("/dashboard")}
-          >
-            Back to Dashboard
-          </Button>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={handleRetry}
+              disabled={loading}
+            >
+              Refresh
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate("/dashboard")}
+            >
+              Back to Dashboard
+            </Button>
+          </Box>
         </Box>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert
+            severity="error"
+            sx={{ mb: 3 }}
+            action={
+              <Button color="inherit" size="small" onClick={handleRetry}>
+                Retry
+              </Button>
+            }
+          >
+            {error}
+          </Alert>
+        )}
 
         <Paper elevation={2}>
           <TableContainer>
@@ -131,7 +219,19 @@ const AdminContacts = () => {
                     <TableRow key={contact._id} hover>
                       <TableCell>{contact.name}</TableCell>
                       <TableCell>{contact.email}</TableCell>
-                      <TableCell>{contact.subject}</TableCell>
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            maxWidth: 200,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {contact.subject}
+                        </Typography>
+                      </TableCell>
                       <TableCell>{formatDate(contact.createdAt)}</TableCell>
                       <TableCell>
                         <Chip
@@ -146,6 +246,7 @@ const AdminContacts = () => {
                           color="primary"
                           onClick={() => handleView(contact)}
                           size="small"
+                          title="View details"
                         >
                           <VisibilityIcon />
                         </IconButton>
@@ -153,6 +254,7 @@ const AdminContacts = () => {
                           color="error"
                           onClick={() => handleDeleteClick(contact)}
                           size="small"
+                          title="Delete contact"
                         >
                           <DeleteIcon />
                         </IconButton>
@@ -164,6 +266,15 @@ const AdminContacts = () => {
             </Table>
           </TableContainer>
         </Paper>
+
+        {/* Display total count */}
+        {contacts.length > 0 && (
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+            <Typography variant="body2" color="text.secondary">
+              Total: {contacts.length} message{contacts.length !== 1 ? "s" : ""}
+            </Typography>
+          </Box>
+        )}
       </Container>
 
       {/* View Dialog */}
@@ -203,13 +314,19 @@ const AdminContacts = () => {
                 <Typography variant="subtitle2" color="text.secondary">
                   Message
                 </Typography>
-                <Typography variant="body1">
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
                   {selectedContact.message}
                 </Typography>
               </Box>
               <Box>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Date
+                  Date Received
                 </Typography>
                 <Typography variant="body1">
                   {formatDate(selectedContact.createdAt)}
@@ -226,7 +343,7 @@ const AdminContacts = () => {
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
+        onClose={() => !deleting && setDeleteDialogOpen(false)}
       >
         <DialogTitle>Delete Contact Message</DialogTitle>
         <DialogContent>
@@ -234,11 +351,24 @@ const AdminContacts = () => {
             Are you sure you want to delete this contact message from{" "}
             <strong>{contactToDelete?.name}</strong>?
           </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            This action cannot be undone.
+          </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>
-            Delete
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            disabled={deleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            {deleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

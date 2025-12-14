@@ -12,11 +12,8 @@ import {
   Divider,
   Button,
   Chip,
-  IconButton,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import HistoryIcon from "@mui/icons-material/History";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StatCard from "./StatCard";
 import { fetchProperties } from "../../features/properties/propertySlice.js";
@@ -78,14 +75,6 @@ const UserDashboard = () => {
             value={myProperties.length}
             icon={<HomeIcon />}
             color="primary"
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <StatCard
-            title="Recent Views"
-            value="12"
-            icon={<HistoryIcon />}
-            color="success"
           />
         </Grid>
       </Grid>

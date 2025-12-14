@@ -1,4 +1,3 @@
-// api/authApi.js
 import axiosInstance from "./axiosConfig.js";
 
 export const authApi = {

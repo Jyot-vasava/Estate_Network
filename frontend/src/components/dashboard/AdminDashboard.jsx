@@ -16,13 +16,12 @@ import {
   Button,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
-import PeopleIcon from "@mui/icons-material/People";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StatCard from "./StatCard";
 import { fetchProperties } from "../../features/properties/propertySlice.js";
 import { formatCurrency, formatDate } from "../../utils/helper.js";
+import { getAllContacts } from "../../../../backend/controllers/contact.controller.js";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
@@ -76,7 +75,7 @@ const AdminDashboard = () => {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title="Messages"
-            value="15"
+            value={getAllContacts.length -1 || 0}
             icon={<ContactMailIcon />}
             color="error"
           />

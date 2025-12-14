@@ -1,4 +1,3 @@
-// api/axiosConfig.js
 import axios from "axios";
 import { API_BASE_URL } from "../utils/constants.js";
 
