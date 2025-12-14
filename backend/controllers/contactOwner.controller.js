@@ -20,11 +20,18 @@ const contactOwner = AsyncHandler(async (req, res) => {
     <small>Reply directly to: ${email}</small>
   `;
 
-  await sendEmail(ownerEmail, subject, "", html);
+  try {
+    const emailResult = await sendEmail(ownerEmail, subject, "", html);
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, null, "Message sent to owner"));
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, emailResult, "Message sent to owner successfully")
+      );
+  } catch (error) {
+    console.error("Email error:", error);
+    throw new ApiError(500, "Failed to send email. Please try again later.");
+  }
 });
 
 export { contactOwner };

@@ -80,4 +80,10 @@ export const contactApi = {
     const response = await apiClient.get(`/contacts/${id}`);
     return response.data;
   },
+
+  // Contact property owner (NEW METHOD)
+  contactOwner: async (contactData) => {
+    const response = await apiClient.post("/contact-owner", contactData);
+    return response.data;
+  },
 };

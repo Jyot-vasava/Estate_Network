@@ -1,91 +1,71 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
-let transporter;
+const sendEmail = async (to, subject, text, html) => {
+  try {
+    // Create a test account if no SMTP credentials are provided
+    let transporter;
 
-if (process.env.NODE_ENV === "production") {
-  // Use your Gmail in production (after enabling 2FA + App Password)
-  transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS, // ← App Password, not real password
-    },
-  });
-} else {
-  // Use Ethereal for development (instant preview link)
-  transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    auth: {
-      user: "your-ethereal-email@ethereal.email", // Will auto-generate
-      pass: "your-password",
-    },
-  });
-}
+    if (
+      process.env.SMTP_HOST &&
+      process.env.SMTP_USER &&
+      process.env.SMTP_PASS
+    ) {
+      // Production configuration
+      transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT || 587,
+        secure: process.env.SMTP_SECURE === "true", 
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+    } else {
+      // Development mode - use Ethereal Email (test account)
+      console.log(
+        "⚠️  No SMTP credentials found. Using Ethereal test account..."
+      );
 
-// Auto-create Ethereal account on first send
-const sendEmail = async (to, subject, text = "", html = "") => {
-  if (!transporter) {
-    const testAccount = await nodemailer.createTestAccount();
-    transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
+      const testAccount = await nodemailer.createTestAccount();
+
+      transporter = nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass,
+        },
+      });
+    }
+
+    // Send email
+    const info = await transporter.sendMail({
+      from:
+        process.env.SMTP_FROM || '"Estate Network" <noreply@estatenetwork.com>',
+      to,
+      subject,
+      text,
+      html,
     });
-    console.log("Ethereal Email:", testAccount.user);
-    console.log("Preview URL will appear below ↓");
+
+    console.log("✅ Email sent successfully!");
+    console.log("Message ID:", info.messageId);
+
+    // If using Ethereal, get preview URL
+    if (!process.env.SMTP_HOST) {
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      console.log("📧 Preview URL:", previewUrl);
+      return { success: true, previewUrl };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Email sending failed:", error);
+    throw new Error(`Failed to send email: ${error.message}`);
   }
-
-  const info = await transporter.sendMail({
-    from: '"Estate Network" <no-reply@estatenetwork.com>',
-    to,
-    subject,
-    text,
-    html,
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 };
 
 export default sendEmail;
-
-
-
-// import nodemailer from "nodemailer";
-
-// const sendEmail = async (to, subject, text = "", html = "") => {
-//   // Create transporter using Gmail + App Password
-//   const transporter = nodemailer.createTransporter({
-//     service: "gmail",
-//     auth: {
-//       user: process.env.EMAIL_USER,
-//       pass: process.env.EMAIL_PASS, // ← 16-digit App Password
-//     },
-//   });
-
-//   const mailOptions = {
-//     from: `"Estate Network" <${process.env.EMAIL_USER}>`,
-//     to,
-//     subject,
-//     text,
-//     html,
-//   };
-
-//   try {
-//     const info = await transporter.sendMail(mailOptions);
-//     console.log("REAL EMAIL SENT SUCCESSFULLY!");
-//     console.log("To:", to);
-//     console.log("Subject:", subject);
-//     return info;
-//   } catch (error) {
-//     console.error("Email failed:", error.message);
-//     throw error;
-//   }
-// };
-
-// export default sendEmail;
