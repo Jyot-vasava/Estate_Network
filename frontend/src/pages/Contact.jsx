@@ -1,6 +1,4 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import React, { useState } from "react";
 import {
   Box,
   Container,
@@ -13,27 +11,65 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import Button from "../components/common/Button.jsx";
-import { contactSchema } from "../utils/validation.js";
+import { validateForm, validationRules } from "../utils/apiUtils.js";
 import { contactApi } from "../api/contactApi.js";
 import toast from "react-hot-toast";
 
 const Contact = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm({
-    resolver: yupResolver(contactSchema),
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
   });
+  const [errors, setErrors] = useState({});
 
-  const onSubmit = async (data) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const handleReset = () => {
+    setFormData({
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+    });
+    setErrors({});
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    const validation = validateForm(formData, validationRules.contact);
+
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    setLoading(true);
     try {
-      await contactApi.createContact(data);
+      await contactApi.createContact(formData);
       toast.success("Message sent successfully!");
-      reset();
+      handleReset();
     } catch (error) {
       toast.error("Failed to send message");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,7 +90,8 @@ const Contact = () => {
           color="text.secondary"
           mb={6}
         >
-          Have a question? We'd love to hear from you. Send us a message or feedback.
+          Have a question? We'd love to hear from you. Send us a message or
+          feedback.
         </Typography>
 
         <Grid container spacing={4}>
@@ -64,7 +101,7 @@ const Contact = () => {
               <Typography variant="h5" gutterBottom fontWeight="bold">
                 Send us a Message
               </Typography>
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit}>
                 <Box
                   sx={{
                     display: "flex",
@@ -76,39 +113,47 @@ const Contact = () => {
                   <TextField
                     fullWidth
                     label="Your Name"
-                    {...register("name")}
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
                     error={!!errors.name}
-                    helperText={errors.name?.message}
+                    helperText={errors.name}
                   />
                   <TextField
                     fullWidth
                     label="Your Email"
+                    name="email"
                     type="email"
-                    {...register("email")}
+                    value={formData.email}
+                    onChange={handleChange}
                     error={!!errors.email}
-                    helperText={errors.email?.message}
+                    helperText={errors.email}
                   />
                   <TextField
                     fullWidth
                     label="Subject"
-                    {...register("subject")}
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
                     error={!!errors.subject}
-                    helperText={errors.subject?.message}
+                    helperText={errors.subject}
                   />
                   <TextField
                     fullWidth
                     label="Message"
+                    name="message"
                     multiline
                     rows={6}
-                    {...register("message")}
+                    value={formData.message}
+                    onChange={handleChange}
                     error={!!errors.message}
-                    helperText={errors.message?.message}
+                    helperText={errors.message}
                   />
                   <Button
                     type="submit"
                     variant="contained"
                     fullWidth
-                    loading={isSubmitting}
+                    loading={loading}
                   >
                     Send Message
                   </Button>

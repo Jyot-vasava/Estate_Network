@@ -1,5 +1,4 @@
-import React from "react";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -16,26 +15,48 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "../common/Button";
 import { login } from "../../features/auth/authSlice.js";
+import { validateForm, validationRules } from "../../utils/apiUtils.js";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.auth);
-  const [showPassword, setShowPassword] = React.useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    mode: "onSubmit",
-    // TEMPORARILY DISABLE VALIDATION
-    // resolver: yupResolver(loginSchema),
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
   });
+  const [errors, setErrors] = useState({});
 
-  const onSubmit = async (data) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    const validation = validateForm(formData, validationRules.login);
+
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
+
     try {
-      const resultAction = await dispatch(login(data));
+      const resultAction = await dispatch(login(formData));
       console.log("Login result:", resultAction);
 
       if (login.fulfilled.match(resultAction)) {
@@ -45,10 +66,6 @@ const LoginForm = () => {
       console.error("Login error:", error);
     }
   };
-
-  // Log when component renders
-  console.log("LoginForm rendered");
-  console.log("Form errors:", errors);
 
   return (
     <Box
@@ -65,15 +82,17 @@ const LoginForm = () => {
           Welcome Back
         </Typography>
 
-        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+        <Box component="form" onSubmit={handleSubmit}>
           <TextField
             fullWidth
             label="Email"
+            name="email"
             type="email"
             margin="normal"
-            {...register("email", { required: "Email is required" })}
+            value={formData.email}
+            onChange={handleChange}
             error={!!errors.email}
-            helperText={errors.email?.message}
+            helperText={errors.email}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -86,11 +105,13 @@ const LoginForm = () => {
           <TextField
             fullWidth
             label="Password"
+            name="password"
             type={showPassword ? "text" : "password"}
             margin="normal"
-            {...register("password", { required: "Password is required" })}
+            value={formData.password}
+            onChange={handleChange}
             error={!!errors.password}
-            helperText={errors.password?.message}
+            helperText={errors.password}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -117,7 +138,6 @@ const LoginForm = () => {
             size="large"
             loading={loading}
             sx={{ mt: 3, mb: 2 }}
-            onClick={() => console.log("Button clicked directly")}
           >
             Login
           </Button>

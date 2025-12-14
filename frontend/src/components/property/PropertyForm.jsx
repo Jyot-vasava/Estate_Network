@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -28,7 +26,7 @@ import {
   updateProperty,
   fetchPropertyById,
 } from "../../features/properties/propertySlice.js";
-import { propertySchema } from "../../utils/validation_property.js";
+import { validateForm, validationRules } from "../../utils/apiUtils.js";
 import { AMENITIES } from "../../utils/constants";
 
 const PropertyForm = ({ isEdit = false }) => {
@@ -39,21 +37,29 @@ const PropertyForm = ({ isEdit = false }) => {
 
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [existingImages, setExistingImages] = useState([]); // Track existing images from backend
-  const [imagesToDelete, setImagesToDelete] = useState([]); // Track images to delete
+  const [existingImages, setExistingImages] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [errors, setErrors] = useState({});
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    reset,
-  } = useForm({
-    resolver: yupResolver(propertySchema),
-    defaultValues: {
-      amenities: [],
-    },
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    propertyType: "sale",
+    bedrooms: "",
+    bathrooms: "",
+    floorArea: "",
+    totalFloors: "",
+    amenities: [],
+    address: "",
+    city: "",
+    state: "",
+    country: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhoneNumber: "",
+    price: "",
+    discountedPrice: "",
+    legalDocumentation: "",
   });
 
   useEffect(() => {
@@ -65,10 +71,25 @@ const PropertyForm = ({ isEdit = false }) => {
   useEffect(() => {
     if (isEdit && currentProperty) {
       // Populate form with existing data
-      Object.keys(currentProperty).forEach((key) => {
-        if (key !== "images") {
-          setValue(key, currentProperty[key]);
-        }
+      setFormData({
+        name: currentProperty.name || "",
+        description: currentProperty.description || "",
+        propertyType: currentProperty.propertyType || "sale",
+        bedrooms: currentProperty.bedrooms || "",
+        bathrooms: currentProperty.bathrooms || "",
+        floorArea: currentProperty.floorArea || "",
+        totalFloors: currentProperty.totalFloors || "",
+        amenities: currentProperty.amenities || [],
+        address: currentProperty.address || "",
+        city: currentProperty.city || "",
+        state: currentProperty.state || "",
+        country: currentProperty.country || "",
+        contactName: currentProperty.contactName || "",
+        contactEmail: currentProperty.contactEmail || "",
+        contactPhoneNumber: currentProperty.contactPhoneNumber || "",
+        price: currentProperty.price || "",
+        discountedPrice: currentProperty.discountedPrice || "",
+        legalDocumentation: currentProperty.legalDocumentation || "",
       });
 
       // Set existing images
@@ -77,7 +98,36 @@ const PropertyForm = ({ isEdit = false }) => {
         setImagePreviews(currentProperty.images);
       }
     }
-  }, [isEdit, currentProperty, setValue]);
+  }, [isEdit, currentProperty]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const handleAmenitiesChange = (event) => {
+    const { value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      amenities: typeof value === "string" ? value.split(",") : value,
+    }));
+    if (errors.amenities) {
+      setErrors((prev) => ({
+        ...prev,
+        amenities: "",
+      }));
+    }
+  };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -108,40 +158,56 @@ const PropertyForm = ({ isEdit = false }) => {
     setImagePreviews(newPreviews);
   };
 
-  const onSubmit = async (data) => {
-    const formData = new FormData();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    const validation = validateForm(formData, validationRules.property);
+
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      // Scroll to first error
+      const firstError = Object.keys(validation.errors)[0];
+      const element = document.getElementsByName(firstError)[0];
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
+    const formDataToSend = new FormData();
 
     // Append all form fields
-    Object.keys(data).forEach((key) => {
+    Object.keys(formData).forEach((key) => {
       if (key === "amenities") {
-        formData.append(key, JSON.stringify(data[key]));
+        formDataToSend.append(key, JSON.stringify(formData[key]));
       } else {
-        formData.append(key, data[key]);
+        formDataToSend.append(key, formData[key]);
       }
     });
 
     // Append new images
     imageFiles.forEach((file) => {
-      formData.append("images", file);
+      formDataToSend.append("images", file);
     });
 
     // In edit mode, send existing images that should be kept
     if (isEdit) {
-      formData.append("existingImages", JSON.stringify(existingImages));
-      formData.append("imagesToDelete", JSON.stringify(imagesToDelete));
+      formDataToSend.append("existingImages", JSON.stringify(existingImages));
+      formDataToSend.append("imagesToDelete", JSON.stringify(imagesToDelete));
     }
 
     try {
       if (isEdit) {
         const result = await dispatch(
-          updateProperty({ id, formData })
+          updateProperty({ id, formData: formDataToSend })
         ).unwrap();
         console.log("Property updated:", result);
 
         const propertyId = result?.data?._id || result?._id || id;
         navigate(`/properties/${propertyId}`);
       } else {
-        const result = await dispatch(createProperty(formData)).unwrap();
+        const result = await dispatch(createProperty(formDataToSend)).unwrap();
         console.log("Property created, full result:", result);
 
         const propertyId = result?.data?._id || result?._id;
@@ -173,16 +239,18 @@ const PropertyForm = ({ isEdit = false }) => {
             property
           </Typography>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               {/* Property Name */}
               <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Property Name"
-                  {...register("name")}
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   error={!!errors.name}
-                  helperText={errors.name?.message}
+                  helperText={errors.name}
                 />
               </Grid>
 
@@ -191,11 +259,13 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="Description"
+                  name="description"
                   multiline
                   rows={4}
-                  {...register("description")}
+                  value={formData.description}
+                  onChange={handleChange}
                   error={!!errors.description}
-                  helperText={errors.description?.message}
+                  helperText={errors.description}
                 />
               </Grid>
 
@@ -204,20 +274,24 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="Bedrooms"
+                  name="bedrooms"
                   type="number"
-                  {...register("bedrooms")}
+                  value={formData.bedrooms}
+                  onChange={handleChange}
                   error={!!errors.bedrooms}
-                  helperText={errors.bedrooms?.message}
+                  helperText={errors.bedrooms}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label="Bathrooms"
+                  name="bathrooms"
                   type="number"
-                  {...register("bathrooms")}
+                  value={formData.bathrooms}
+                  onChange={handleChange}
                   error={!!errors.bathrooms}
-                  helperText={errors.bathrooms?.message}
+                  helperText={errors.bathrooms}
                 />
               </Grid>
 
@@ -226,53 +300,59 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="Floor Area (sq ft)"
+                  name="floorArea"
                   type="number"
-                  {...register("floorArea")}
+                  value={formData.floorArea}
+                  onChange={handleChange}
                   error={!!errors.floorArea}
-                  helperText={errors.floorArea?.message}
+                  helperText={errors.floorArea}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label="Total Floors"
+                  name="totalFloors"
                   type="number"
-                  {...register("totalFloors")}
+                  value={formData.totalFloors}
+                  onChange={handleChange}
                   error={!!errors.totalFloors}
-                  helperText={errors.totalFloors?.message}
+                  helperText={errors.totalFloors}
                 />
               </Grid>
 
               {/* Amenities */}
               <Grid size={{ xs: 12 }}>
-                <FormControl fullWidth>
+                <FormControl fullWidth error={!!errors.amenities}>
                   <InputLabel>Amenities</InputLabel>
-                  <Controller
-                    name="amenities"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        multiple
-                        input={<OutlinedInput label="Amenities" />}
-                        renderValue={(selected) => (
-                          <Box
-                            sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
-                          >
-                            {selected.map((value) => (
-                              <Chip key={value} label={value} size="small" />
-                            ))}
-                          </Box>
-                        )}
-                      >
-                        {AMENITIES.map((amenity) => (
-                          <MenuItem key={amenity} value={amenity}>
-                            {amenity}
-                          </MenuItem>
+                  <Select
+                    multiple
+                    value={formData.amenities}
+                    onChange={handleAmenitiesChange}
+                    input={<OutlinedInput label="Amenities" />}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip key={value} label={value} size="small" />
                         ))}
-                      </Select>
+                      </Box>
                     )}
-                  />
+                  >
+                    {AMENITIES.map((amenity) => (
+                      <MenuItem key={amenity} value={amenity}>
+                        {amenity}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.amenities && (
+                    <Typography
+                      variant="caption"
+                      color="error"
+                      sx={{ mt: 0.5 }}
+                    >
+                      {errors.amenities}
+                    </Typography>
+                  )}
                 </FormControl>
               </Grid>
 
@@ -281,9 +361,11 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="Address"
-                  {...register("address")}
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
                   error={!!errors.address}
-                  helperText={errors.address?.message}
+                  helperText={errors.address}
                 />
               </Grid>
 
@@ -292,27 +374,33 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="City"
-                  {...register("city")}
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
                   error={!!errors.city}
-                  helperText={errors.city?.message}
+                  helperText={errors.city}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField
                   fullWidth
                   label="State"
-                  {...register("state")}
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
                   error={!!errors.state}
-                  helperText={errors.state?.message}
+                  helperText={errors.state}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField
                   fullWidth
                   label="Country"
-                  {...register("country")}
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
                   error={!!errors.country}
-                  helperText={errors.country?.message}
+                  helperText={errors.country}
                 />
               </Grid>
 
@@ -326,28 +414,34 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="Contact Name"
-                  {...register("contactName")}
+                  name="contactName"
+                  value={formData.contactName}
+                  onChange={handleChange}
                   error={!!errors.contactName}
-                  helperText={errors.contactName?.message}
+                  helperText={errors.contactName}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField
                   fullWidth
                   label="Contact Email"
+                  name="contactEmail"
                   type="email"
-                  {...register("contactEmail")}
+                  value={formData.contactEmail}
+                  onChange={handleChange}
                   error={!!errors.contactEmail}
-                  helperText={errors.contactEmail?.message}
+                  helperText={errors.contactEmail}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField
                   fullWidth
                   label="Contact Phone"
-                  {...register("contactPhoneNumber")}
+                  name="contactPhoneNumber"
+                  value={formData.contactPhoneNumber}
+                  onChange={handleChange}
                   error={!!errors.contactPhoneNumber}
-                  helperText={errors.contactPhoneNumber?.message}
+                  helperText={errors.contactPhoneNumber}
                 />
               </Grid>
 
@@ -355,20 +449,22 @@ const PropertyForm = ({ isEdit = false }) => {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth error={!!errors.propertyType}>
                   <InputLabel>Property Type *</InputLabel>
-                  <Controller
+                  <Select
                     name="propertyType"
-                    control={control}
-                    defaultValue="sale"
-                    render={({ field }) => (
-                      <Select {...field} label="Property Type *">
-                        <MenuItem value="sale">For Sale</MenuItem>
-                        <MenuItem value="rent">For Rent</MenuItem>
-                      </Select>
-                    )}
-                  />
+                    value={formData.propertyType}
+                    onChange={handleChange}
+                    label="Property Type *"
+                  >
+                    <MenuItem value="sale">For Sale</MenuItem>
+                    <MenuItem value="rent">For Rent</MenuItem>
+                  </Select>
                   {errors.propertyType && (
-                    <Typography variant="caption" color="error">
-                      {errors.propertyType.message}
+                    <Typography
+                      variant="caption"
+                      color="error"
+                      sx={{ mt: 0.5 }}
+                    >
+                      {errors.propertyType}
                     </Typography>
                   )}
                 </FormControl>
@@ -379,10 +475,12 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="Price (₹) *"
+                  name="price"
                   type="number"
-                  {...register("price")}
+                  value={formData.price}
+                  onChange={handleChange}
                   error={!!errors.price}
-                  helperText={errors.price?.message}
+                  helperText={errors.price}
                 />
               </Grid>
 
@@ -391,13 +489,12 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="Discounted Price (₹) - Optional"
+                  name="discountedPrice"
                   type="number"
-                  {...register("discountedPrice")}
+                  value={formData.discountedPrice}
+                  onChange={handleChange}
                   error={!!errors.discountedPrice}
-                  helperText={
-                    errors.discountedPrice?.message ||
-                    "Set 0 for no discount"
-                  }
+                  helperText={errors.discountedPrice || "Set 0 for no discount"}
                   placeholder="0"
                 />
               </Grid>
@@ -407,9 +504,11 @@ const PropertyForm = ({ isEdit = false }) => {
                 <TextField
                   fullWidth
                   label="Legal Documentation"
-                  {...register("legalDocumentation")}
+                  name="legalDocumentation"
+                  value={formData.legalDocumentation}
+                  onChange={handleChange}
                   error={!!errors.legalDocumentation}
-                  helperText={errors.legalDocumentation?.message}
+                  helperText={errors.legalDocumentation}
                 />
               </Grid>
 

@@ -1,6 +1,4 @@
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -20,22 +18,23 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Button from "../common/Button";
 import { signup } from "../../features/auth/authSlice";
-import { signupSchema } from "../../utils/validation";
+import { validateForm, validationRules } from "../../utils/apiUtils.js";
 
 const SignupForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, isAuthenticated } = useSelector((state) => state.auth);
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(signupSchema),
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -43,8 +42,34 @@ const SignupForm = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const onSubmit = async (data) => {
-    const { confirmPassword, ...signupData } = data;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    const validation = validateForm(formData, validationRules.signup);
+
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    // Remove confirmPassword before sending to API
+    const { confirmPassword, ...signupData } = formData;
     console.log("Signup data:", signupData);
 
     const result = await dispatch(signup(signupData));
@@ -90,14 +115,16 @@ const SignupForm = () => {
           Sign up to get started
         </Typography>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
             label="Username"
+            name="username"
             margin="normal"
-            {...register("username")}
+            value={formData.username}
+            onChange={handleChange}
             error={!!errors.username}
-            helperText={errors.username?.message}
+            helperText={errors.username}
             disabled={loading}
             InputProps={{
               startAdornment: (
@@ -111,11 +138,13 @@ const SignupForm = () => {
           <TextField
             fullWidth
             label="Email"
+            name="email"
             type="email"
             margin="normal"
-            {...register("email")}
+            value={formData.email}
+            onChange={handleChange}
             error={!!errors.email}
-            helperText={errors.email?.message}
+            helperText={errors.email}
             disabled={loading}
             InputProps={{
               startAdornment: (
@@ -129,10 +158,12 @@ const SignupForm = () => {
           <TextField
             fullWidth
             label="Phone Number"
+            name="phone"
             margin="normal"
-            {...register("phone")}
+            value={formData.phone}
+            onChange={handleChange}
             error={!!errors.phone}
-            helperText={errors.phone?.message}
+            helperText={errors.phone}
             disabled={loading}
             placeholder="10-digit mobile number"
             InputProps={{
@@ -147,11 +178,13 @@ const SignupForm = () => {
           <TextField
             fullWidth
             label="Password"
+            name="password"
             type={showPassword ? "text" : "password"}
             margin="normal"
-            {...register("password")}
+            value={formData.password}
+            onChange={handleChange}
             error={!!errors.password}
-            helperText={errors.password?.message}
+            helperText={errors.password}
             disabled={loading}
             InputProps={{
               startAdornment: (
@@ -176,11 +209,13 @@ const SignupForm = () => {
           <TextField
             fullWidth
             label="Confirm Password"
+            name="confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
             margin="normal"
-            {...register("confirmPassword")}
+            value={formData.confirmPassword}
+            onChange={handleChange}
             error={!!errors.confirmPassword}
-            helperText={errors.confirmPassword?.message}
+            helperText={errors.confirmPassword}
             disabled={loading}
             InputProps={{
               startAdornment: (

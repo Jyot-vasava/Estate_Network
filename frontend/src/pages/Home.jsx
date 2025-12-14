@@ -22,7 +22,7 @@ const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { properties, loading } = useSelector((state) => state.properties);
-  const { isAuthenticated } = useSelector((state) => state.auth); // Add this
+  const { isAuthenticated } = useSelector((state) => state.auth); 
 
   useEffect(() => {
     dispatch(fetchProperties());
