@@ -97,7 +97,7 @@ const PropertyDetails = () => {
 
       console.log("Email response:", response);
       toast.success(
-        "Message sent successfully! Check backend console for email preview."
+        "Email sent"
       );
 
       if (response?.data?.previewUrl) {

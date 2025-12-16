@@ -4,7 +4,6 @@ dotenv.config();
 
 const sendEmail = async (to, subject, text, html) => {
   try {
-    // Create a test account if no SMTP credentials are provided
     let transporter;
 
     if (
@@ -12,14 +11,24 @@ const sendEmail = async (to, subject, text, html) => {
       process.env.SMTP_USER &&
       process.env.SMTP_PASS
     ) {
-      // Production configuration
+      // Production configuration with corrected SSL/TLS settings
+      const smtpPort = parseInt(process.env.SMTP_PORT) || 587;
+
+      // Port 465 uses SSL (secure: true)
+      // Port 587 uses STARTTLS (secure: false)
+      const isSecure = smtpPort === 465;
+
       transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT || 587,
-        secure: process.env.SMTP_SECURE === "true", 
+        port: smtpPort,
+        secure: isSecure, // true for 465, false for other ports
         auth: {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
+        },
+        tls: {
+          // Do not fail on invalid certs (useful for development)
+          rejectUnauthorized: false,
         },
       });
     } else {
@@ -41,6 +50,10 @@ const sendEmail = async (to, subject, text, html) => {
       });
     }
 
+    // Verify connection configuration
+    await transporter.verify();
+    console.log("✅ SMTP connection verified");
+
     // Send email
     const info = await transporter.sendMail({
       from:
@@ -61,7 +74,7 @@ const sendEmail = async (to, subject, text, html) => {
       return { success: true, previewUrl };
     }
 
-    return { success: true };
+    return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("❌ Email sending failed:", error);
     throw new Error(`Failed to send email: ${error.message}`);
