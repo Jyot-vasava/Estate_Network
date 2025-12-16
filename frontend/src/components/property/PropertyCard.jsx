@@ -14,26 +14,16 @@ import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import SquareFootIcon from "@mui/icons-material/SquareFoot";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { formatCurrency } from "../../utils/helper.js";
 
-const PropertyCard = ({ property, onFavorite }) => {
+const PropertyCard = ({ property }) => {
   const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = React.useState(false);
 
   const handleCardClick = () => {
     navigate(`/properties/${property._id}`);
   };
 
-  const handleFavoriteClick = (e) => {
-    e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    if (onFavorite) {
-      onFavorite(property._id);
-    }
-  };
 
   const hasDiscount =
     property.discountedPrice && property.discountedPrice < property.price;
