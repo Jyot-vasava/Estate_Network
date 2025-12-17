@@ -21,7 +21,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StatCard from "./StatCard";
 import { fetchProperties } from "../../features/properties/propertySlice.js";
 import { formatCurrency, formatDate } from "../../utils/helper.js";
-import { getAllContacts } from "../../../../backend/controllers/contact.controller.js";
+
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
