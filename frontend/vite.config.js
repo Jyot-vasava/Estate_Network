@@ -23,6 +23,22 @@ export default defineConfig({
       "@styles": path.resolve(__dirname, "./src/styles"),
     },
   },
+  build: {
+    rollupOptions: {
+      external: [
+        // Exclude all backend files
+        /\/backend\//,
+        "mongoose",
+        "express",
+        "dotenv",
+      ],
+    },
+  },
+
+  optimizeDeps: {
+    exclude: ["mongoose", "express"],
+  },
+
   server: {
     port: 3000,
     proxy: {
