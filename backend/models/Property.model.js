@@ -20,13 +20,18 @@ const propertySchema = new mongoose.Schema(
     contactPhoneNumber: { type: String, required: true },
     price: { type: Number, required: true },
     discountedPrice: { type: Number },
+    legalDocumentation: { type: String },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 // Auto-calculate discount percentage
