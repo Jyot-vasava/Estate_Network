@@ -5,6 +5,7 @@ A **full-stack real estate marketplace** built with MERN stack (MongoDB, Express
 **Demo Video:** https://youtu.be/ZgKTtgh48uY ||
  **Live Demo:** currently working on some functionality || 
  **Backend:** currently working on some functionality 
+ **Real time email sent** https://res.cloudinary.com/dyoeatidf/image/upload/v1766520080/rkiypiyk5mahlvuipbqr.png 
 
 ---
 
@@ -35,6 +36,7 @@ A **full-stack real estate marketplace** built with MERN stack (MongoDB, Express
 | Deployment   | Vercel (Frontend) • Render (Backend)    |
 
 ---
+
 
 
 
